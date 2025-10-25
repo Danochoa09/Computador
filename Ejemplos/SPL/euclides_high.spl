@@ -1,0 +1,12 @@
+; Euclides en lenguaje de alto nivel
+; Variables: a, b
+; Lee a desde M[375], b desde M[1535], calcula MCD y guarda en M[131072]
+
+a = M[375]
+b = M[1535]
+while a != b:
+    if a > b:
+        a = a - b
+    else:
+        b = b - a
+M[131072] = a

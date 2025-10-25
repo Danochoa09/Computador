@@ -1,0 +1,1900 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    COMMA
+    DIRECTIVE
+    LABEL
+    LBRACKET
+    RBRACKET
+    REGISTER
+
+Grammar
+
+Rule 0     S' -> program
+Rule 1     program -> stmts
+Rule 2     stmts -> stmt stmts
+Rule 3     stmts -> <empty>
+Rule 4     stmt -> NAME EQUALS MEMREF
+Rule 5     stmt -> MEMREF EQUALS NAME
+Rule 6     stmt -> NAME EQUALS NUMBER
+Rule 7     stmt -> NAME EQUALS NAME
+Rule 8     stmt -> NAME EQUALS NAME PLUS NAME
+Rule 9     stmt -> NAME EQUALS NAME MINUS NAME
+Rule 10    stmt -> NAME EQUALS NAME PLUS NUMBER
+Rule 11    stmt -> NAME EQUALS NAME MINUS NUMBER
+Rule 12    stmt -> NAME EQUALS NAME TIMES NAME
+Rule 13    stmt -> NAME EQUALS NAME TIMES NUMBER
+Rule 14    stmt -> WHILE NAME NE NAME COLON BEGIN stmts END
+Rule 15    stmt -> WHILE NAME NE NUMBER COLON BEGIN stmts END
+Rule 16    stmt -> WHILE NAME LT NAME COLON BEGIN stmts END
+Rule 17    stmt -> WHILE NAME LT NUMBER COLON BEGIN stmts END
+Rule 18    cond -> cond AND cond
+Rule 19    cond -> cond OR cond
+Rule 20    cond -> NOT cond
+Rule 21    cond -> NAME EQEQ NAME
+Rule 22    cond -> NAME NE NAME
+Rule 23    cond -> NAME LT NAME
+Rule 24    cond -> NAME LE NAME
+Rule 25    cond -> NAME GT NAME
+Rule 26    cond -> NAME GE NAME
+Rule 27    cond -> NAME EQEQ NUMBER
+Rule 28    cond -> NAME NE NUMBER
+Rule 29    cond -> NAME LT NUMBER
+Rule 30    cond -> NAME LE NUMBER
+Rule 31    cond -> NAME GT NUMBER
+Rule 32    cond -> NAME GE NUMBER
+Rule 33    stmt -> IF cond COLON BEGIN stmts END
+Rule 34    stmt -> WHILE cond COLON BEGIN stmts END
+Rule 35    stmt -> WHILE NAME GT NAME COLON BEGIN stmts END
+Rule 36    stmt -> WHILE NAME GT NUMBER COLON BEGIN stmts END
+Rule 37    stmt -> IF NAME GT NAME COLON BEGIN stmts END
+Rule 38    stmt -> IF NAME EQEQ NAME COLON BEGIN stmts END
+Rule 39    stmt -> IF NAME LT NAME COLON BEGIN stmts END
+Rule 40    stmt -> IF NAME EQEQ NUMBER COLON BEGIN stmts END
+Rule 41    stmt -> IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+
+Terminals, with rules where they appear
+
+AND                  : 18
+BEGIN                : 14 15 16 17 33 34 35 36 37 38 39 40 41 41
+COLON                : 14 15 16 17 33 34 35 36 37 38 39 40 41 41
+COMMA                : 
+DIRECTIVE            : 
+ELSE                 : 41
+END                  : 14 15 16 17 33 34 35 36 37 38 39 40 41 41
+EQEQ                 : 21 27 38 40
+EQUALS               : 4 5 6 7 8 9 10 11 12 13
+GE                   : 26 32
+GT                   : 25 31 35 36 37 41
+IF                   : 33 37 38 39 40 41
+LABEL                : 
+LBRACKET             : 
+LE                   : 24 30
+LT                   : 16 17 23 29 39
+MEMREF               : 4 5
+MINUS                : 9 11
+NAME                 : 4 5 6 7 7 8 8 8 9 9 9 10 10 11 11 12 12 12 13 13 14 14 15 16 16 17 21 21 22 22 23 23 24 24 25 25 26 26 27 28 29 30 31 32 35 35 36 37 37 38 38 39 39 40 41 41
+NE                   : 14 15 22 28
+NOT                  : 20
+NUMBER               : 6 10 11 13 15 17 27 28 29 30 31 32 36 40
+OR                   : 19
+PLUS                 : 8 10
+RBRACKET             : 
+REGISTER             : 
+TIMES                : 12 13
+WHILE                : 14 15 16 17 34 35 36
+error                : 
+
+Nonterminals, with rules where they appear
+
+cond                 : 18 18 19 19 20 33 34
+program              : 0
+stmt                 : 2
+stmts                : 1 2 14 15 16 17 33 34 35 36 37 38 39 40 41 41
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . program
+    (1) program -> . stmts
+    (2) stmts -> . stmt stmts
+    (3) stmts -> .
+    (4) stmt -> . NAME EQUALS MEMREF
+    (5) stmt -> . MEMREF EQUALS NAME
+    (6) stmt -> . NAME EQUALS NUMBER
+    (7) stmt -> . NAME EQUALS NAME
+    (8) stmt -> . NAME EQUALS NAME PLUS NAME
+    (9) stmt -> . NAME EQUALS NAME MINUS NAME
+    (10) stmt -> . NAME EQUALS NAME PLUS NUMBER
+    (11) stmt -> . NAME EQUALS NAME MINUS NUMBER
+    (12) stmt -> . NAME EQUALS NAME TIMES NAME
+    (13) stmt -> . NAME EQUALS NAME TIMES NUMBER
+    (14) stmt -> . WHILE NAME NE NAME COLON BEGIN stmts END
+    (15) stmt -> . WHILE NAME NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> . WHILE NAME LT NAME COLON BEGIN stmts END
+    (17) stmt -> . WHILE NAME LT NUMBER COLON BEGIN stmts END
+    (33) stmt -> . IF cond COLON BEGIN stmts END
+    (34) stmt -> . WHILE cond COLON BEGIN stmts END
+    (35) stmt -> . WHILE NAME GT NAME COLON BEGIN stmts END
+    (36) stmt -> . WHILE NAME GT NUMBER COLON BEGIN stmts END
+    (37) stmt -> . IF NAME GT NAME COLON BEGIN stmts END
+    (38) stmt -> . IF NAME EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> . IF NAME LT NAME COLON BEGIN stmts END
+    (40) stmt -> . IF NAME EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> . IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+
+    $end            reduce using rule 3 (stmts -> .)
+    NAME            shift and go to state 4
+    MEMREF          shift and go to state 5
+    WHILE           shift and go to state 6
+    IF              shift and go to state 7
+
+    program                        shift and go to state 1
+    stmts                          shift and go to state 2
+    stmt                           shift and go to state 3
+
+state 1
+
+    (0) S' -> program .
+
+
+
+state 2
+
+    (1) program -> stmts .
+
+    $end            reduce using rule 1 (program -> stmts .)
+
+
+state 3
+
+    (2) stmts -> stmt . stmts
+    (2) stmts -> . stmt stmts
+    (3) stmts -> .
+    (4) stmt -> . NAME EQUALS MEMREF
+    (5) stmt -> . MEMREF EQUALS NAME
+    (6) stmt -> . NAME EQUALS NUMBER
+    (7) stmt -> . NAME EQUALS NAME
+    (8) stmt -> . NAME EQUALS NAME PLUS NAME
+    (9) stmt -> . NAME EQUALS NAME MINUS NAME
+    (10) stmt -> . NAME EQUALS NAME PLUS NUMBER
+    (11) stmt -> . NAME EQUALS NAME MINUS NUMBER
+    (12) stmt -> . NAME EQUALS NAME TIMES NAME
+    (13) stmt -> . NAME EQUALS NAME TIMES NUMBER
+    (14) stmt -> . WHILE NAME NE NAME COLON BEGIN stmts END
+    (15) stmt -> . WHILE NAME NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> . WHILE NAME LT NAME COLON BEGIN stmts END
+    (17) stmt -> . WHILE NAME LT NUMBER COLON BEGIN stmts END
+    (33) stmt -> . IF cond COLON BEGIN stmts END
+    (34) stmt -> . WHILE cond COLON BEGIN stmts END
+    (35) stmt -> . WHILE NAME GT NAME COLON BEGIN stmts END
+    (36) stmt -> . WHILE NAME GT NUMBER COLON BEGIN stmts END
+    (37) stmt -> . IF NAME GT NAME COLON BEGIN stmts END
+    (38) stmt -> . IF NAME EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> . IF NAME LT NAME COLON BEGIN stmts END
+    (40) stmt -> . IF NAME EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> . IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+
+    $end            reduce using rule 3 (stmts -> .)
+    END             reduce using rule 3 (stmts -> .)
+    NAME            shift and go to state 4
+    MEMREF          shift and go to state 5
+    WHILE           shift and go to state 6
+    IF              shift and go to state 7
+
+    stmt                           shift and go to state 3
+    stmts                          shift and go to state 8
+
+state 4
+
+    (4) stmt -> NAME . EQUALS MEMREF
+    (6) stmt -> NAME . EQUALS NUMBER
+    (7) stmt -> NAME . EQUALS NAME
+    (8) stmt -> NAME . EQUALS NAME PLUS NAME
+    (9) stmt -> NAME . EQUALS NAME MINUS NAME
+    (10) stmt -> NAME . EQUALS NAME PLUS NUMBER
+    (11) stmt -> NAME . EQUALS NAME MINUS NUMBER
+    (12) stmt -> NAME . EQUALS NAME TIMES NAME
+    (13) stmt -> NAME . EQUALS NAME TIMES NUMBER
+
+    EQUALS          shift and go to state 9
+
+
+state 5
+
+    (5) stmt -> MEMREF . EQUALS NAME
+
+    EQUALS          shift and go to state 10
+
+
+state 6
+
+    (14) stmt -> WHILE . NAME NE NAME COLON BEGIN stmts END
+    (15) stmt -> WHILE . NAME NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> WHILE . NAME LT NAME COLON BEGIN stmts END
+    (17) stmt -> WHILE . NAME LT NUMBER COLON BEGIN stmts END
+    (34) stmt -> WHILE . cond COLON BEGIN stmts END
+    (35) stmt -> WHILE . NAME GT NAME COLON BEGIN stmts END
+    (36) stmt -> WHILE . NAME GT NUMBER COLON BEGIN stmts END
+    (18) cond -> . cond AND cond
+    (19) cond -> . cond OR cond
+    (20) cond -> . NOT cond
+    (21) cond -> . NAME EQEQ NAME
+    (22) cond -> . NAME NE NAME
+    (23) cond -> . NAME LT NAME
+    (24) cond -> . NAME LE NAME
+    (25) cond -> . NAME GT NAME
+    (26) cond -> . NAME GE NAME
+    (27) cond -> . NAME EQEQ NUMBER
+    (28) cond -> . NAME NE NUMBER
+    (29) cond -> . NAME LT NUMBER
+    (30) cond -> . NAME LE NUMBER
+    (31) cond -> . NAME GT NUMBER
+    (32) cond -> . NAME GE NUMBER
+
+    NAME            shift and go to state 11
+    NOT             shift and go to state 13
+
+    cond                           shift and go to state 12
+
+state 7
+
+    (33) stmt -> IF . cond COLON BEGIN stmts END
+    (37) stmt -> IF . NAME GT NAME COLON BEGIN stmts END
+    (38) stmt -> IF . NAME EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> IF . NAME LT NAME COLON BEGIN stmts END
+    (40) stmt -> IF . NAME EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> IF . NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+    (18) cond -> . cond AND cond
+    (19) cond -> . cond OR cond
+    (20) cond -> . NOT cond
+    (21) cond -> . NAME EQEQ NAME
+    (22) cond -> . NAME NE NAME
+    (23) cond -> . NAME LT NAME
+    (24) cond -> . NAME LE NAME
+    (25) cond -> . NAME GT NAME
+    (26) cond -> . NAME GE NAME
+    (27) cond -> . NAME EQEQ NUMBER
+    (28) cond -> . NAME NE NUMBER
+    (29) cond -> . NAME LT NUMBER
+    (30) cond -> . NAME LE NUMBER
+    (31) cond -> . NAME GT NUMBER
+    (32) cond -> . NAME GE NUMBER
+
+    NAME            shift and go to state 15
+    NOT             shift and go to state 13
+
+    cond                           shift and go to state 14
+
+state 8
+
+    (2) stmts -> stmt stmts .
+
+    $end            reduce using rule 2 (stmts -> stmt stmts .)
+    END             reduce using rule 2 (stmts -> stmt stmts .)
+
+
+state 9
+
+    (4) stmt -> NAME EQUALS . MEMREF
+    (6) stmt -> NAME EQUALS . NUMBER
+    (7) stmt -> NAME EQUALS . NAME
+    (8) stmt -> NAME EQUALS . NAME PLUS NAME
+    (9) stmt -> NAME EQUALS . NAME MINUS NAME
+    (10) stmt -> NAME EQUALS . NAME PLUS NUMBER
+    (11) stmt -> NAME EQUALS . NAME MINUS NUMBER
+    (12) stmt -> NAME EQUALS . NAME TIMES NAME
+    (13) stmt -> NAME EQUALS . NAME TIMES NUMBER
+
+    MEMREF          shift and go to state 17
+    NUMBER          shift and go to state 18
+    NAME            shift and go to state 16
+
+
+state 10
+
+    (5) stmt -> MEMREF EQUALS . NAME
+
+    NAME            shift and go to state 19
+
+
+state 11
+
+    (14) stmt -> WHILE NAME . NE NAME COLON BEGIN stmts END
+    (15) stmt -> WHILE NAME . NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> WHILE NAME . LT NAME COLON BEGIN stmts END
+    (17) stmt -> WHILE NAME . LT NUMBER COLON BEGIN stmts END
+    (35) stmt -> WHILE NAME . GT NAME COLON BEGIN stmts END
+    (36) stmt -> WHILE NAME . GT NUMBER COLON BEGIN stmts END
+    (21) cond -> NAME . EQEQ NAME
+    (22) cond -> NAME . NE NAME
+    (23) cond -> NAME . LT NAME
+    (24) cond -> NAME . LE NAME
+    (25) cond -> NAME . GT NAME
+    (26) cond -> NAME . GE NAME
+    (27) cond -> NAME . EQEQ NUMBER
+    (28) cond -> NAME . NE NUMBER
+    (29) cond -> NAME . LT NUMBER
+    (30) cond -> NAME . LE NUMBER
+    (31) cond -> NAME . GT NUMBER
+    (32) cond -> NAME . GE NUMBER
+
+    NE              shift and go to state 20
+    LT              shift and go to state 21
+    GT              shift and go to state 22
+    EQEQ            shift and go to state 23
+    LE              shift and go to state 24
+    GE              shift and go to state 25
+
+
+state 12
+
+    (34) stmt -> WHILE cond . COLON BEGIN stmts END
+    (18) cond -> cond . AND cond
+    (19) cond -> cond . OR cond
+
+    COLON           shift and go to state 26
+    AND             shift and go to state 27
+    OR              shift and go to state 28
+
+
+state 13
+
+    (20) cond -> NOT . cond
+    (18) cond -> . cond AND cond
+    (19) cond -> . cond OR cond
+    (20) cond -> . NOT cond
+    (21) cond -> . NAME EQEQ NAME
+    (22) cond -> . NAME NE NAME
+    (23) cond -> . NAME LT NAME
+    (24) cond -> . NAME LE NAME
+    (25) cond -> . NAME GT NAME
+    (26) cond -> . NAME GE NAME
+    (27) cond -> . NAME EQEQ NUMBER
+    (28) cond -> . NAME NE NUMBER
+    (29) cond -> . NAME LT NUMBER
+    (30) cond -> . NAME LE NUMBER
+    (31) cond -> . NAME GT NUMBER
+    (32) cond -> . NAME GE NUMBER
+
+    NOT             shift and go to state 13
+    NAME            shift and go to state 30
+
+    cond                           shift and go to state 29
+
+state 14
+
+    (33) stmt -> IF cond . COLON BEGIN stmts END
+    (18) cond -> cond . AND cond
+    (19) cond -> cond . OR cond
+
+    COLON           shift and go to state 31
+    AND             shift and go to state 27
+    OR              shift and go to state 28
+
+
+state 15
+
+    (37) stmt -> IF NAME . GT NAME COLON BEGIN stmts END
+    (38) stmt -> IF NAME . EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> IF NAME . LT NAME COLON BEGIN stmts END
+    (40) stmt -> IF NAME . EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> IF NAME . GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+    (21) cond -> NAME . EQEQ NAME
+    (22) cond -> NAME . NE NAME
+    (23) cond -> NAME . LT NAME
+    (24) cond -> NAME . LE NAME
+    (25) cond -> NAME . GT NAME
+    (26) cond -> NAME . GE NAME
+    (27) cond -> NAME . EQEQ NUMBER
+    (28) cond -> NAME . NE NUMBER
+    (29) cond -> NAME . LT NUMBER
+    (30) cond -> NAME . LE NUMBER
+    (31) cond -> NAME . GT NUMBER
+    (32) cond -> NAME . GE NUMBER
+
+    GT              shift and go to state 32
+    EQEQ            shift and go to state 33
+    LT              shift and go to state 34
+    NE              shift and go to state 35
+    LE              shift and go to state 24
+    GE              shift and go to state 25
+
+
+state 16
+
+    (7) stmt -> NAME EQUALS NAME .
+    (8) stmt -> NAME EQUALS NAME . PLUS NAME
+    (9) stmt -> NAME EQUALS NAME . MINUS NAME
+    (10) stmt -> NAME EQUALS NAME . PLUS NUMBER
+    (11) stmt -> NAME EQUALS NAME . MINUS NUMBER
+    (12) stmt -> NAME EQUALS NAME . TIMES NAME
+    (13) stmt -> NAME EQUALS NAME . TIMES NUMBER
+
+    NAME            reduce using rule 7 (stmt -> NAME EQUALS NAME .)
+    MEMREF          reduce using rule 7 (stmt -> NAME EQUALS NAME .)
+    WHILE           reduce using rule 7 (stmt -> NAME EQUALS NAME .)
+    IF              reduce using rule 7 (stmt -> NAME EQUALS NAME .)
+    $end            reduce using rule 7 (stmt -> NAME EQUALS NAME .)
+    END             reduce using rule 7 (stmt -> NAME EQUALS NAME .)
+    PLUS            shift and go to state 36
+    MINUS           shift and go to state 37
+    TIMES           shift and go to state 38
+
+
+state 17
+
+    (4) stmt -> NAME EQUALS MEMREF .
+
+    NAME            reduce using rule 4 (stmt -> NAME EQUALS MEMREF .)
+    MEMREF          reduce using rule 4 (stmt -> NAME EQUALS MEMREF .)
+    WHILE           reduce using rule 4 (stmt -> NAME EQUALS MEMREF .)
+    IF              reduce using rule 4 (stmt -> NAME EQUALS MEMREF .)
+    $end            reduce using rule 4 (stmt -> NAME EQUALS MEMREF .)
+    END             reduce using rule 4 (stmt -> NAME EQUALS MEMREF .)
+
+
+state 18
+
+    (6) stmt -> NAME EQUALS NUMBER .
+
+    NAME            reduce using rule 6 (stmt -> NAME EQUALS NUMBER .)
+    MEMREF          reduce using rule 6 (stmt -> NAME EQUALS NUMBER .)
+    WHILE           reduce using rule 6 (stmt -> NAME EQUALS NUMBER .)
+    IF              reduce using rule 6 (stmt -> NAME EQUALS NUMBER .)
+    $end            reduce using rule 6 (stmt -> NAME EQUALS NUMBER .)
+    END             reduce using rule 6 (stmt -> NAME EQUALS NUMBER .)
+
+
+state 19
+
+    (5) stmt -> MEMREF EQUALS NAME .
+
+    NAME            reduce using rule 5 (stmt -> MEMREF EQUALS NAME .)
+    MEMREF          reduce using rule 5 (stmt -> MEMREF EQUALS NAME .)
+    WHILE           reduce using rule 5 (stmt -> MEMREF EQUALS NAME .)
+    IF              reduce using rule 5 (stmt -> MEMREF EQUALS NAME .)
+    $end            reduce using rule 5 (stmt -> MEMREF EQUALS NAME .)
+    END             reduce using rule 5 (stmt -> MEMREF EQUALS NAME .)
+
+
+state 20
+
+    (14) stmt -> WHILE NAME NE . NAME COLON BEGIN stmts END
+    (15) stmt -> WHILE NAME NE . NUMBER COLON BEGIN stmts END
+    (22) cond -> NAME NE . NAME
+    (28) cond -> NAME NE . NUMBER
+
+    NAME            shift and go to state 39
+    NUMBER          shift and go to state 40
+
+
+state 21
+
+    (16) stmt -> WHILE NAME LT . NAME COLON BEGIN stmts END
+    (17) stmt -> WHILE NAME LT . NUMBER COLON BEGIN stmts END
+    (23) cond -> NAME LT . NAME
+    (29) cond -> NAME LT . NUMBER
+
+    NAME            shift and go to state 41
+    NUMBER          shift and go to state 42
+
+
+state 22
+
+    (35) stmt -> WHILE NAME GT . NAME COLON BEGIN stmts END
+    (36) stmt -> WHILE NAME GT . NUMBER COLON BEGIN stmts END
+    (25) cond -> NAME GT . NAME
+    (31) cond -> NAME GT . NUMBER
+
+    NAME            shift and go to state 43
+    NUMBER          shift and go to state 44
+
+
+state 23
+
+    (21) cond -> NAME EQEQ . NAME
+    (27) cond -> NAME EQEQ . NUMBER
+
+    NAME            shift and go to state 45
+    NUMBER          shift and go to state 46
+
+
+state 24
+
+    (24) cond -> NAME LE . NAME
+    (30) cond -> NAME LE . NUMBER
+
+    NAME            shift and go to state 47
+    NUMBER          shift and go to state 48
+
+
+state 25
+
+    (26) cond -> NAME GE . NAME
+    (32) cond -> NAME GE . NUMBER
+
+    NAME            shift and go to state 49
+    NUMBER          shift and go to state 50
+
+
+state 26
+
+    (34) stmt -> WHILE cond COLON . BEGIN stmts END
+
+    BEGIN           shift and go to state 51
+
+
+state 27
+
+    (18) cond -> cond AND . cond
+    (18) cond -> . cond AND cond
+    (19) cond -> . cond OR cond
+    (20) cond -> . NOT cond
+    (21) cond -> . NAME EQEQ NAME
+    (22) cond -> . NAME NE NAME
+    (23) cond -> . NAME LT NAME
+    (24) cond -> . NAME LE NAME
+    (25) cond -> . NAME GT NAME
+    (26) cond -> . NAME GE NAME
+    (27) cond -> . NAME EQEQ NUMBER
+    (28) cond -> . NAME NE NUMBER
+    (29) cond -> . NAME LT NUMBER
+    (30) cond -> . NAME LE NUMBER
+    (31) cond -> . NAME GT NUMBER
+    (32) cond -> . NAME GE NUMBER
+
+    NOT             shift and go to state 13
+    NAME            shift and go to state 30
+
+    cond                           shift and go to state 52
+
+state 28
+
+    (19) cond -> cond OR . cond
+    (18) cond -> . cond AND cond
+    (19) cond -> . cond OR cond
+    (20) cond -> . NOT cond
+    (21) cond -> . NAME EQEQ NAME
+    (22) cond -> . NAME NE NAME
+    (23) cond -> . NAME LT NAME
+    (24) cond -> . NAME LE NAME
+    (25) cond -> . NAME GT NAME
+    (26) cond -> . NAME GE NAME
+    (27) cond -> . NAME EQEQ NUMBER
+    (28) cond -> . NAME NE NUMBER
+    (29) cond -> . NAME LT NUMBER
+    (30) cond -> . NAME LE NUMBER
+    (31) cond -> . NAME GT NUMBER
+    (32) cond -> . NAME GE NUMBER
+
+    NOT             shift and go to state 13
+    NAME            shift and go to state 30
+
+    cond                           shift and go to state 53
+
+state 29
+
+    (20) cond -> NOT cond .
+    (18) cond -> cond . AND cond
+    (19) cond -> cond . OR cond
+
+  ! shift/reduce conflict for AND resolved as shift
+  ! shift/reduce conflict for OR resolved as shift
+    COLON           reduce using rule 20 (cond -> NOT cond .)
+    AND             shift and go to state 27
+    OR              shift and go to state 28
+
+  ! AND             [ reduce using rule 20 (cond -> NOT cond .) ]
+  ! OR              [ reduce using rule 20 (cond -> NOT cond .) ]
+
+
+state 30
+
+    (21) cond -> NAME . EQEQ NAME
+    (22) cond -> NAME . NE NAME
+    (23) cond -> NAME . LT NAME
+    (24) cond -> NAME . LE NAME
+    (25) cond -> NAME . GT NAME
+    (26) cond -> NAME . GE NAME
+    (27) cond -> NAME . EQEQ NUMBER
+    (28) cond -> NAME . NE NUMBER
+    (29) cond -> NAME . LT NUMBER
+    (30) cond -> NAME . LE NUMBER
+    (31) cond -> NAME . GT NUMBER
+    (32) cond -> NAME . GE NUMBER
+
+    EQEQ            shift and go to state 23
+    NE              shift and go to state 35
+    LT              shift and go to state 54
+    LE              shift and go to state 24
+    GT              shift and go to state 55
+    GE              shift and go to state 25
+
+
+state 31
+
+    (33) stmt -> IF cond COLON . BEGIN stmts END
+
+    BEGIN           shift and go to state 56
+
+
+state 32
+
+    (37) stmt -> IF NAME GT . NAME COLON BEGIN stmts END
+    (41) stmt -> IF NAME GT . NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+    (25) cond -> NAME GT . NAME
+    (31) cond -> NAME GT . NUMBER
+
+    NAME            shift and go to state 57
+    NUMBER          shift and go to state 58
+
+
+state 33
+
+    (38) stmt -> IF NAME EQEQ . NAME COLON BEGIN stmts END
+    (40) stmt -> IF NAME EQEQ . NUMBER COLON BEGIN stmts END
+    (21) cond -> NAME EQEQ . NAME
+    (27) cond -> NAME EQEQ . NUMBER
+
+    NAME            shift and go to state 59
+    NUMBER          shift and go to state 60
+
+
+state 34
+
+    (39) stmt -> IF NAME LT . NAME COLON BEGIN stmts END
+    (23) cond -> NAME LT . NAME
+    (29) cond -> NAME LT . NUMBER
+
+    NAME            shift and go to state 61
+    NUMBER          shift and go to state 62
+
+
+state 35
+
+    (22) cond -> NAME NE . NAME
+    (28) cond -> NAME NE . NUMBER
+
+    NAME            shift and go to state 63
+    NUMBER          shift and go to state 64
+
+
+state 36
+
+    (8) stmt -> NAME EQUALS NAME PLUS . NAME
+    (10) stmt -> NAME EQUALS NAME PLUS . NUMBER
+
+    NAME            shift and go to state 65
+    NUMBER          shift and go to state 66
+
+
+state 37
+
+    (9) stmt -> NAME EQUALS NAME MINUS . NAME
+    (11) stmt -> NAME EQUALS NAME MINUS . NUMBER
+
+    NAME            shift and go to state 67
+    NUMBER          shift and go to state 68
+
+
+state 38
+
+    (12) stmt -> NAME EQUALS NAME TIMES . NAME
+    (13) stmt -> NAME EQUALS NAME TIMES . NUMBER
+
+    NAME            shift and go to state 69
+    NUMBER          shift and go to state 70
+
+
+state 39
+
+    (14) stmt -> WHILE NAME NE NAME . COLON BEGIN stmts END
+    (22) cond -> NAME NE NAME .
+
+  ! shift/reduce conflict for COLON resolved as shift
+    COLON           shift and go to state 71
+    AND             reduce using rule 22 (cond -> NAME NE NAME .)
+    OR              reduce using rule 22 (cond -> NAME NE NAME .)
+
+  ! COLON           [ reduce using rule 22 (cond -> NAME NE NAME .) ]
+
+
+state 40
+
+    (15) stmt -> WHILE NAME NE NUMBER . COLON BEGIN stmts END
+    (28) cond -> NAME NE NUMBER .
+
+  ! shift/reduce conflict for COLON resolved as shift
+    COLON           shift and go to state 72
+    AND             reduce using rule 28 (cond -> NAME NE NUMBER .)
+    OR              reduce using rule 28 (cond -> NAME NE NUMBER .)
+
+  ! COLON           [ reduce using rule 28 (cond -> NAME NE NUMBER .) ]
+
+
+state 41
+
+    (16) stmt -> WHILE NAME LT NAME . COLON BEGIN stmts END
+    (23) cond -> NAME LT NAME .
+
+  ! shift/reduce conflict for COLON resolved as shift
+    COLON           shift and go to state 73
+    AND             reduce using rule 23 (cond -> NAME LT NAME .)
+    OR              reduce using rule 23 (cond -> NAME LT NAME .)
+
+  ! COLON           [ reduce using rule 23 (cond -> NAME LT NAME .) ]
+
+
+state 42
+
+    (17) stmt -> WHILE NAME LT NUMBER . COLON BEGIN stmts END
+    (29) cond -> NAME LT NUMBER .
+
+  ! shift/reduce conflict for COLON resolved as shift
+    COLON           shift and go to state 74
+    AND             reduce using rule 29 (cond -> NAME LT NUMBER .)
+    OR              reduce using rule 29 (cond -> NAME LT NUMBER .)
+
+  ! COLON           [ reduce using rule 29 (cond -> NAME LT NUMBER .) ]
+
+
+state 43
+
+    (35) stmt -> WHILE NAME GT NAME . COLON BEGIN stmts END
+    (25) cond -> NAME GT NAME .
+
+  ! shift/reduce conflict for COLON resolved as shift
+    COLON           shift and go to state 75
+    AND             reduce using rule 25 (cond -> NAME GT NAME .)
+    OR              reduce using rule 25 (cond -> NAME GT NAME .)
+
+  ! COLON           [ reduce using rule 25 (cond -> NAME GT NAME .) ]
+
+
+state 44
+
+    (36) stmt -> WHILE NAME GT NUMBER . COLON BEGIN stmts END
+    (31) cond -> NAME GT NUMBER .
+
+  ! shift/reduce conflict for COLON resolved as shift
+    COLON           shift and go to state 76
+    AND             reduce using rule 31 (cond -> NAME GT NUMBER .)
+    OR              reduce using rule 31 (cond -> NAME GT NUMBER .)
+
+  ! COLON           [ reduce using rule 31 (cond -> NAME GT NUMBER .) ]
+
+
+state 45
+
+    (21) cond -> NAME EQEQ NAME .
+
+    COLON           reduce using rule 21 (cond -> NAME EQEQ NAME .)
+    AND             reduce using rule 21 (cond -> NAME EQEQ NAME .)
+    OR              reduce using rule 21 (cond -> NAME EQEQ NAME .)
+
+
+state 46
+
+    (27) cond -> NAME EQEQ NUMBER .
+
+    COLON           reduce using rule 27 (cond -> NAME EQEQ NUMBER .)
+    AND             reduce using rule 27 (cond -> NAME EQEQ NUMBER .)
+    OR              reduce using rule 27 (cond -> NAME EQEQ NUMBER .)
+
+
+state 47
+
+    (24) cond -> NAME LE NAME .
+
+    COLON           reduce using rule 24 (cond -> NAME LE NAME .)
+    AND             reduce using rule 24 (cond -> NAME LE NAME .)
+    OR              reduce using rule 24 (cond -> NAME LE NAME .)
+
+
+state 48
+
+    (30) cond -> NAME LE NUMBER .
+
+    COLON           reduce using rule 30 (cond -> NAME LE NUMBER .)
+    AND             reduce using rule 30 (cond -> NAME LE NUMBER .)
+    OR              reduce using rule 30 (cond -> NAME LE NUMBER .)
+
+
+state 49
+
+    (26) cond -> NAME GE NAME .
+
+    COLON           reduce using rule 26 (cond -> NAME GE NAME .)
+    AND             reduce using rule 26 (cond -> NAME GE NAME .)
+    OR              reduce using rule 26 (cond -> NAME GE NAME .)
+
+
+state 50
+
+    (32) cond -> NAME GE NUMBER .
+
+    COLON           reduce using rule 32 (cond -> NAME GE NUMBER .)
+    AND             reduce using rule 32 (cond -> NAME GE NUMBER .)
+    OR              reduce using rule 32 (cond -> NAME GE NUMBER .)
+
+
+state 51
+
+    (34) stmt -> WHILE cond COLON BEGIN . stmts END
+    (2) stmts -> . stmt stmts
+    (3) stmts -> .
+    (4) stmt -> . NAME EQUALS MEMREF
+    (5) stmt -> . MEMREF EQUALS NAME
+    (6) stmt -> . NAME EQUALS NUMBER
+    (7) stmt -> . NAME EQUALS NAME
+    (8) stmt -> . NAME EQUALS NAME PLUS NAME
+    (9) stmt -> . NAME EQUALS NAME MINUS NAME
+    (10) stmt -> . NAME EQUALS NAME PLUS NUMBER
+    (11) stmt -> . NAME EQUALS NAME MINUS NUMBER
+    (12) stmt -> . NAME EQUALS NAME TIMES NAME
+    (13) stmt -> . NAME EQUALS NAME TIMES NUMBER
+    (14) stmt -> . WHILE NAME NE NAME COLON BEGIN stmts END
+    (15) stmt -> . WHILE NAME NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> . WHILE NAME LT NAME COLON BEGIN stmts END
+    (17) stmt -> . WHILE NAME LT NUMBER COLON BEGIN stmts END
+    (33) stmt -> . IF cond COLON BEGIN stmts END
+    (34) stmt -> . WHILE cond COLON BEGIN stmts END
+    (35) stmt -> . WHILE NAME GT NAME COLON BEGIN stmts END
+    (36) stmt -> . WHILE NAME GT NUMBER COLON BEGIN stmts END
+    (37) stmt -> . IF NAME GT NAME COLON BEGIN stmts END
+    (38) stmt -> . IF NAME EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> . IF NAME LT NAME COLON BEGIN stmts END
+    (40) stmt -> . IF NAME EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> . IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+
+    END             reduce using rule 3 (stmts -> .)
+    NAME            shift and go to state 4
+    MEMREF          shift and go to state 5
+    WHILE           shift and go to state 6
+    IF              shift and go to state 7
+
+    stmts                          shift and go to state 77
+    stmt                           shift and go to state 3
+
+state 52
+
+    (18) cond -> cond AND cond .
+    (18) cond -> cond . AND cond
+    (19) cond -> cond . OR cond
+
+  ! shift/reduce conflict for AND resolved as shift
+  ! shift/reduce conflict for OR resolved as shift
+    COLON           reduce using rule 18 (cond -> cond AND cond .)
+    AND             shift and go to state 27
+    OR              shift and go to state 28
+
+  ! AND             [ reduce using rule 18 (cond -> cond AND cond .) ]
+  ! OR              [ reduce using rule 18 (cond -> cond AND cond .) ]
+
+
+state 53
+
+    (19) cond -> cond OR cond .
+    (18) cond -> cond . AND cond
+    (19) cond -> cond . OR cond
+
+  ! shift/reduce conflict for AND resolved as shift
+  ! shift/reduce conflict for OR resolved as shift
+    COLON           reduce using rule 19 (cond -> cond OR cond .)
+    AND             shift and go to state 27
+    OR              shift and go to state 28
+
+  ! AND             [ reduce using rule 19 (cond -> cond OR cond .) ]
+  ! OR              [ reduce using rule 19 (cond -> cond OR cond .) ]
+
+
+state 54
+
+    (23) cond -> NAME LT . NAME
+    (29) cond -> NAME LT . NUMBER
+
+    NAME            shift and go to state 78
+    NUMBER          shift and go to state 62
+
+
+state 55
+
+    (25) cond -> NAME GT . NAME
+    (31) cond -> NAME GT . NUMBER
+
+    NAME            shift and go to state 79
+    NUMBER          shift and go to state 58
+
+
+state 56
+
+    (33) stmt -> IF cond COLON BEGIN . stmts END
+    (2) stmts -> . stmt stmts
+    (3) stmts -> .
+    (4) stmt -> . NAME EQUALS MEMREF
+    (5) stmt -> . MEMREF EQUALS NAME
+    (6) stmt -> . NAME EQUALS NUMBER
+    (7) stmt -> . NAME EQUALS NAME
+    (8) stmt -> . NAME EQUALS NAME PLUS NAME
+    (9) stmt -> . NAME EQUALS NAME MINUS NAME
+    (10) stmt -> . NAME EQUALS NAME PLUS NUMBER
+    (11) stmt -> . NAME EQUALS NAME MINUS NUMBER
+    (12) stmt -> . NAME EQUALS NAME TIMES NAME
+    (13) stmt -> . NAME EQUALS NAME TIMES NUMBER
+    (14) stmt -> . WHILE NAME NE NAME COLON BEGIN stmts END
+    (15) stmt -> . WHILE NAME NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> . WHILE NAME LT NAME COLON BEGIN stmts END
+    (17) stmt -> . WHILE NAME LT NUMBER COLON BEGIN stmts END
+    (33) stmt -> . IF cond COLON BEGIN stmts END
+    (34) stmt -> . WHILE cond COLON BEGIN stmts END
+    (35) stmt -> . WHILE NAME GT NAME COLON BEGIN stmts END
+    (36) stmt -> . WHILE NAME GT NUMBER COLON BEGIN stmts END
+    (37) stmt -> . IF NAME GT NAME COLON BEGIN stmts END
+    (38) stmt -> . IF NAME EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> . IF NAME LT NAME COLON BEGIN stmts END
+    (40) stmt -> . IF NAME EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> . IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+
+    END             reduce using rule 3 (stmts -> .)
+    NAME            shift and go to state 4
+    MEMREF          shift and go to state 5
+    WHILE           shift and go to state 6
+    IF              shift and go to state 7
+
+    stmts                          shift and go to state 80
+    stmt                           shift and go to state 3
+
+state 57
+
+    (37) stmt -> IF NAME GT NAME . COLON BEGIN stmts END
+    (41) stmt -> IF NAME GT NAME . COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+    (25) cond -> NAME GT NAME .
+
+  ! shift/reduce conflict for COLON resolved as shift
+    COLON           shift and go to state 81
+    AND             reduce using rule 25 (cond -> NAME GT NAME .)
+    OR              reduce using rule 25 (cond -> NAME GT NAME .)
+
+  ! COLON           [ reduce using rule 25 (cond -> NAME GT NAME .) ]
+
+
+state 58
+
+    (31) cond -> NAME GT NUMBER .
+
+    COLON           reduce using rule 31 (cond -> NAME GT NUMBER .)
+    AND             reduce using rule 31 (cond -> NAME GT NUMBER .)
+    OR              reduce using rule 31 (cond -> NAME GT NUMBER .)
+
+
+state 59
+
+    (38) stmt -> IF NAME EQEQ NAME . COLON BEGIN stmts END
+    (21) cond -> NAME EQEQ NAME .
+
+  ! shift/reduce conflict for COLON resolved as shift
+    COLON           shift and go to state 82
+    AND             reduce using rule 21 (cond -> NAME EQEQ NAME .)
+    OR              reduce using rule 21 (cond -> NAME EQEQ NAME .)
+
+  ! COLON           [ reduce using rule 21 (cond -> NAME EQEQ NAME .) ]
+
+
+state 60
+
+    (40) stmt -> IF NAME EQEQ NUMBER . COLON BEGIN stmts END
+    (27) cond -> NAME EQEQ NUMBER .
+
+  ! shift/reduce conflict for COLON resolved as shift
+    COLON           shift and go to state 83
+    AND             reduce using rule 27 (cond -> NAME EQEQ NUMBER .)
+    OR              reduce using rule 27 (cond -> NAME EQEQ NUMBER .)
+
+  ! COLON           [ reduce using rule 27 (cond -> NAME EQEQ NUMBER .) ]
+
+
+state 61
+
+    (39) stmt -> IF NAME LT NAME . COLON BEGIN stmts END
+    (23) cond -> NAME LT NAME .
+
+  ! shift/reduce conflict for COLON resolved as shift
+    COLON           shift and go to state 84
+    AND             reduce using rule 23 (cond -> NAME LT NAME .)
+    OR              reduce using rule 23 (cond -> NAME LT NAME .)
+
+  ! COLON           [ reduce using rule 23 (cond -> NAME LT NAME .) ]
+
+
+state 62
+
+    (29) cond -> NAME LT NUMBER .
+
+    COLON           reduce using rule 29 (cond -> NAME LT NUMBER .)
+    AND             reduce using rule 29 (cond -> NAME LT NUMBER .)
+    OR              reduce using rule 29 (cond -> NAME LT NUMBER .)
+
+
+state 63
+
+    (22) cond -> NAME NE NAME .
+
+    COLON           reduce using rule 22 (cond -> NAME NE NAME .)
+    AND             reduce using rule 22 (cond -> NAME NE NAME .)
+    OR              reduce using rule 22 (cond -> NAME NE NAME .)
+
+
+state 64
+
+    (28) cond -> NAME NE NUMBER .
+
+    COLON           reduce using rule 28 (cond -> NAME NE NUMBER .)
+    AND             reduce using rule 28 (cond -> NAME NE NUMBER .)
+    OR              reduce using rule 28 (cond -> NAME NE NUMBER .)
+
+
+state 65
+
+    (8) stmt -> NAME EQUALS NAME PLUS NAME .
+
+    NAME            reduce using rule 8 (stmt -> NAME EQUALS NAME PLUS NAME .)
+    MEMREF          reduce using rule 8 (stmt -> NAME EQUALS NAME PLUS NAME .)
+    WHILE           reduce using rule 8 (stmt -> NAME EQUALS NAME PLUS NAME .)
+    IF              reduce using rule 8 (stmt -> NAME EQUALS NAME PLUS NAME .)
+    $end            reduce using rule 8 (stmt -> NAME EQUALS NAME PLUS NAME .)
+    END             reduce using rule 8 (stmt -> NAME EQUALS NAME PLUS NAME .)
+
+
+state 66
+
+    (10) stmt -> NAME EQUALS NAME PLUS NUMBER .
+
+    NAME            reduce using rule 10 (stmt -> NAME EQUALS NAME PLUS NUMBER .)
+    MEMREF          reduce using rule 10 (stmt -> NAME EQUALS NAME PLUS NUMBER .)
+    WHILE           reduce using rule 10 (stmt -> NAME EQUALS NAME PLUS NUMBER .)
+    IF              reduce using rule 10 (stmt -> NAME EQUALS NAME PLUS NUMBER .)
+    $end            reduce using rule 10 (stmt -> NAME EQUALS NAME PLUS NUMBER .)
+    END             reduce using rule 10 (stmt -> NAME EQUALS NAME PLUS NUMBER .)
+
+
+state 67
+
+    (9) stmt -> NAME EQUALS NAME MINUS NAME .
+
+    NAME            reduce using rule 9 (stmt -> NAME EQUALS NAME MINUS NAME .)
+    MEMREF          reduce using rule 9 (stmt -> NAME EQUALS NAME MINUS NAME .)
+    WHILE           reduce using rule 9 (stmt -> NAME EQUALS NAME MINUS NAME .)
+    IF              reduce using rule 9 (stmt -> NAME EQUALS NAME MINUS NAME .)
+    $end            reduce using rule 9 (stmt -> NAME EQUALS NAME MINUS NAME .)
+    END             reduce using rule 9 (stmt -> NAME EQUALS NAME MINUS NAME .)
+
+
+state 68
+
+    (11) stmt -> NAME EQUALS NAME MINUS NUMBER .
+
+    NAME            reduce using rule 11 (stmt -> NAME EQUALS NAME MINUS NUMBER .)
+    MEMREF          reduce using rule 11 (stmt -> NAME EQUALS NAME MINUS NUMBER .)
+    WHILE           reduce using rule 11 (stmt -> NAME EQUALS NAME MINUS NUMBER .)
+    IF              reduce using rule 11 (stmt -> NAME EQUALS NAME MINUS NUMBER .)
+    $end            reduce using rule 11 (stmt -> NAME EQUALS NAME MINUS NUMBER .)
+    END             reduce using rule 11 (stmt -> NAME EQUALS NAME MINUS NUMBER .)
+
+
+state 69
+
+    (12) stmt -> NAME EQUALS NAME TIMES NAME .
+
+    NAME            reduce using rule 12 (stmt -> NAME EQUALS NAME TIMES NAME .)
+    MEMREF          reduce using rule 12 (stmt -> NAME EQUALS NAME TIMES NAME .)
+    WHILE           reduce using rule 12 (stmt -> NAME EQUALS NAME TIMES NAME .)
+    IF              reduce using rule 12 (stmt -> NAME EQUALS NAME TIMES NAME .)
+    $end            reduce using rule 12 (stmt -> NAME EQUALS NAME TIMES NAME .)
+    END             reduce using rule 12 (stmt -> NAME EQUALS NAME TIMES NAME .)
+
+
+state 70
+
+    (13) stmt -> NAME EQUALS NAME TIMES NUMBER .
+
+    NAME            reduce using rule 13 (stmt -> NAME EQUALS NAME TIMES NUMBER .)
+    MEMREF          reduce using rule 13 (stmt -> NAME EQUALS NAME TIMES NUMBER .)
+    WHILE           reduce using rule 13 (stmt -> NAME EQUALS NAME TIMES NUMBER .)
+    IF              reduce using rule 13 (stmt -> NAME EQUALS NAME TIMES NUMBER .)
+    $end            reduce using rule 13 (stmt -> NAME EQUALS NAME TIMES NUMBER .)
+    END             reduce using rule 13 (stmt -> NAME EQUALS NAME TIMES NUMBER .)
+
+
+state 71
+
+    (14) stmt -> WHILE NAME NE NAME COLON . BEGIN stmts END
+
+    BEGIN           shift and go to state 85
+
+
+state 72
+
+    (15) stmt -> WHILE NAME NE NUMBER COLON . BEGIN stmts END
+
+    BEGIN           shift and go to state 86
+
+
+state 73
+
+    (16) stmt -> WHILE NAME LT NAME COLON . BEGIN stmts END
+
+    BEGIN           shift and go to state 87
+
+
+state 74
+
+    (17) stmt -> WHILE NAME LT NUMBER COLON . BEGIN stmts END
+
+    BEGIN           shift and go to state 88
+
+
+state 75
+
+    (35) stmt -> WHILE NAME GT NAME COLON . BEGIN stmts END
+
+    BEGIN           shift and go to state 89
+
+
+state 76
+
+    (36) stmt -> WHILE NAME GT NUMBER COLON . BEGIN stmts END
+
+    BEGIN           shift and go to state 90
+
+
+state 77
+
+    (34) stmt -> WHILE cond COLON BEGIN stmts . END
+
+    END             shift and go to state 91
+
+
+state 78
+
+    (23) cond -> NAME LT NAME .
+
+    AND             reduce using rule 23 (cond -> NAME LT NAME .)
+    OR              reduce using rule 23 (cond -> NAME LT NAME .)
+    COLON           reduce using rule 23 (cond -> NAME LT NAME .)
+
+
+state 79
+
+    (25) cond -> NAME GT NAME .
+
+    AND             reduce using rule 25 (cond -> NAME GT NAME .)
+    OR              reduce using rule 25 (cond -> NAME GT NAME .)
+    COLON           reduce using rule 25 (cond -> NAME GT NAME .)
+
+
+state 80
+
+    (33) stmt -> IF cond COLON BEGIN stmts . END
+
+    END             shift and go to state 92
+
+
+state 81
+
+    (37) stmt -> IF NAME GT NAME COLON . BEGIN stmts END
+    (41) stmt -> IF NAME GT NAME COLON . BEGIN stmts END ELSE COLON BEGIN stmts END
+
+    BEGIN           shift and go to state 93
+
+
+state 82
+
+    (38) stmt -> IF NAME EQEQ NAME COLON . BEGIN stmts END
+
+    BEGIN           shift and go to state 94
+
+
+state 83
+
+    (40) stmt -> IF NAME EQEQ NUMBER COLON . BEGIN stmts END
+
+    BEGIN           shift and go to state 95
+
+
+state 84
+
+    (39) stmt -> IF NAME LT NAME COLON . BEGIN stmts END
+
+    BEGIN           shift and go to state 96
+
+
+state 85
+
+    (14) stmt -> WHILE NAME NE NAME COLON BEGIN . stmts END
+    (2) stmts -> . stmt stmts
+    (3) stmts -> .
+    (4) stmt -> . NAME EQUALS MEMREF
+    (5) stmt -> . MEMREF EQUALS NAME
+    (6) stmt -> . NAME EQUALS NUMBER
+    (7) stmt -> . NAME EQUALS NAME
+    (8) stmt -> . NAME EQUALS NAME PLUS NAME
+    (9) stmt -> . NAME EQUALS NAME MINUS NAME
+    (10) stmt -> . NAME EQUALS NAME PLUS NUMBER
+    (11) stmt -> . NAME EQUALS NAME MINUS NUMBER
+    (12) stmt -> . NAME EQUALS NAME TIMES NAME
+    (13) stmt -> . NAME EQUALS NAME TIMES NUMBER
+    (14) stmt -> . WHILE NAME NE NAME COLON BEGIN stmts END
+    (15) stmt -> . WHILE NAME NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> . WHILE NAME LT NAME COLON BEGIN stmts END
+    (17) stmt -> . WHILE NAME LT NUMBER COLON BEGIN stmts END
+    (33) stmt -> . IF cond COLON BEGIN stmts END
+    (34) stmt -> . WHILE cond COLON BEGIN stmts END
+    (35) stmt -> . WHILE NAME GT NAME COLON BEGIN stmts END
+    (36) stmt -> . WHILE NAME GT NUMBER COLON BEGIN stmts END
+    (37) stmt -> . IF NAME GT NAME COLON BEGIN stmts END
+    (38) stmt -> . IF NAME EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> . IF NAME LT NAME COLON BEGIN stmts END
+    (40) stmt -> . IF NAME EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> . IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+
+    END             reduce using rule 3 (stmts -> .)
+    NAME            shift and go to state 4
+    MEMREF          shift and go to state 5
+    WHILE           shift and go to state 6
+    IF              shift and go to state 7
+
+    stmts                          shift and go to state 97
+    stmt                           shift and go to state 3
+
+state 86
+
+    (15) stmt -> WHILE NAME NE NUMBER COLON BEGIN . stmts END
+    (2) stmts -> . stmt stmts
+    (3) stmts -> .
+    (4) stmt -> . NAME EQUALS MEMREF
+    (5) stmt -> . MEMREF EQUALS NAME
+    (6) stmt -> . NAME EQUALS NUMBER
+    (7) stmt -> . NAME EQUALS NAME
+    (8) stmt -> . NAME EQUALS NAME PLUS NAME
+    (9) stmt -> . NAME EQUALS NAME MINUS NAME
+    (10) stmt -> . NAME EQUALS NAME PLUS NUMBER
+    (11) stmt -> . NAME EQUALS NAME MINUS NUMBER
+    (12) stmt -> . NAME EQUALS NAME TIMES NAME
+    (13) stmt -> . NAME EQUALS NAME TIMES NUMBER
+    (14) stmt -> . WHILE NAME NE NAME COLON BEGIN stmts END
+    (15) stmt -> . WHILE NAME NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> . WHILE NAME LT NAME COLON BEGIN stmts END
+    (17) stmt -> . WHILE NAME LT NUMBER COLON BEGIN stmts END
+    (33) stmt -> . IF cond COLON BEGIN stmts END
+    (34) stmt -> . WHILE cond COLON BEGIN stmts END
+    (35) stmt -> . WHILE NAME GT NAME COLON BEGIN stmts END
+    (36) stmt -> . WHILE NAME GT NUMBER COLON BEGIN stmts END
+    (37) stmt -> . IF NAME GT NAME COLON BEGIN stmts END
+    (38) stmt -> . IF NAME EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> . IF NAME LT NAME COLON BEGIN stmts END
+    (40) stmt -> . IF NAME EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> . IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+
+    END             reduce using rule 3 (stmts -> .)
+    NAME            shift and go to state 4
+    MEMREF          shift and go to state 5
+    WHILE           shift and go to state 6
+    IF              shift and go to state 7
+
+    stmts                          shift and go to state 98
+    stmt                           shift and go to state 3
+
+state 87
+
+    (16) stmt -> WHILE NAME LT NAME COLON BEGIN . stmts END
+    (2) stmts -> . stmt stmts
+    (3) stmts -> .
+    (4) stmt -> . NAME EQUALS MEMREF
+    (5) stmt -> . MEMREF EQUALS NAME
+    (6) stmt -> . NAME EQUALS NUMBER
+    (7) stmt -> . NAME EQUALS NAME
+    (8) stmt -> . NAME EQUALS NAME PLUS NAME
+    (9) stmt -> . NAME EQUALS NAME MINUS NAME
+    (10) stmt -> . NAME EQUALS NAME PLUS NUMBER
+    (11) stmt -> . NAME EQUALS NAME MINUS NUMBER
+    (12) stmt -> . NAME EQUALS NAME TIMES NAME
+    (13) stmt -> . NAME EQUALS NAME TIMES NUMBER
+    (14) stmt -> . WHILE NAME NE NAME COLON BEGIN stmts END
+    (15) stmt -> . WHILE NAME NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> . WHILE NAME LT NAME COLON BEGIN stmts END
+    (17) stmt -> . WHILE NAME LT NUMBER COLON BEGIN stmts END
+    (33) stmt -> . IF cond COLON BEGIN stmts END
+    (34) stmt -> . WHILE cond COLON BEGIN stmts END
+    (35) stmt -> . WHILE NAME GT NAME COLON BEGIN stmts END
+    (36) stmt -> . WHILE NAME GT NUMBER COLON BEGIN stmts END
+    (37) stmt -> . IF NAME GT NAME COLON BEGIN stmts END
+    (38) stmt -> . IF NAME EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> . IF NAME LT NAME COLON BEGIN stmts END
+    (40) stmt -> . IF NAME EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> . IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+
+    END             reduce using rule 3 (stmts -> .)
+    NAME            shift and go to state 4
+    MEMREF          shift and go to state 5
+    WHILE           shift and go to state 6
+    IF              shift and go to state 7
+
+    stmts                          shift and go to state 99
+    stmt                           shift and go to state 3
+
+state 88
+
+    (17) stmt -> WHILE NAME LT NUMBER COLON BEGIN . stmts END
+    (2) stmts -> . stmt stmts
+    (3) stmts -> .
+    (4) stmt -> . NAME EQUALS MEMREF
+    (5) stmt -> . MEMREF EQUALS NAME
+    (6) stmt -> . NAME EQUALS NUMBER
+    (7) stmt -> . NAME EQUALS NAME
+    (8) stmt -> . NAME EQUALS NAME PLUS NAME
+    (9) stmt -> . NAME EQUALS NAME MINUS NAME
+    (10) stmt -> . NAME EQUALS NAME PLUS NUMBER
+    (11) stmt -> . NAME EQUALS NAME MINUS NUMBER
+    (12) stmt -> . NAME EQUALS NAME TIMES NAME
+    (13) stmt -> . NAME EQUALS NAME TIMES NUMBER
+    (14) stmt -> . WHILE NAME NE NAME COLON BEGIN stmts END
+    (15) stmt -> . WHILE NAME NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> . WHILE NAME LT NAME COLON BEGIN stmts END
+    (17) stmt -> . WHILE NAME LT NUMBER COLON BEGIN stmts END
+    (33) stmt -> . IF cond COLON BEGIN stmts END
+    (34) stmt -> . WHILE cond COLON BEGIN stmts END
+    (35) stmt -> . WHILE NAME GT NAME COLON BEGIN stmts END
+    (36) stmt -> . WHILE NAME GT NUMBER COLON BEGIN stmts END
+    (37) stmt -> . IF NAME GT NAME COLON BEGIN stmts END
+    (38) stmt -> . IF NAME EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> . IF NAME LT NAME COLON BEGIN stmts END
+    (40) stmt -> . IF NAME EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> . IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+
+    END             reduce using rule 3 (stmts -> .)
+    NAME            shift and go to state 4
+    MEMREF          shift and go to state 5
+    WHILE           shift and go to state 6
+    IF              shift and go to state 7
+
+    stmts                          shift and go to state 100
+    stmt                           shift and go to state 3
+
+state 89
+
+    (35) stmt -> WHILE NAME GT NAME COLON BEGIN . stmts END
+    (2) stmts -> . stmt stmts
+    (3) stmts -> .
+    (4) stmt -> . NAME EQUALS MEMREF
+    (5) stmt -> . MEMREF EQUALS NAME
+    (6) stmt -> . NAME EQUALS NUMBER
+    (7) stmt -> . NAME EQUALS NAME
+    (8) stmt -> . NAME EQUALS NAME PLUS NAME
+    (9) stmt -> . NAME EQUALS NAME MINUS NAME
+    (10) stmt -> . NAME EQUALS NAME PLUS NUMBER
+    (11) stmt -> . NAME EQUALS NAME MINUS NUMBER
+    (12) stmt -> . NAME EQUALS NAME TIMES NAME
+    (13) stmt -> . NAME EQUALS NAME TIMES NUMBER
+    (14) stmt -> . WHILE NAME NE NAME COLON BEGIN stmts END
+    (15) stmt -> . WHILE NAME NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> . WHILE NAME LT NAME COLON BEGIN stmts END
+    (17) stmt -> . WHILE NAME LT NUMBER COLON BEGIN stmts END
+    (33) stmt -> . IF cond COLON BEGIN stmts END
+    (34) stmt -> . WHILE cond COLON BEGIN stmts END
+    (35) stmt -> . WHILE NAME GT NAME COLON BEGIN stmts END
+    (36) stmt -> . WHILE NAME GT NUMBER COLON BEGIN stmts END
+    (37) stmt -> . IF NAME GT NAME COLON BEGIN stmts END
+    (38) stmt -> . IF NAME EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> . IF NAME LT NAME COLON BEGIN stmts END
+    (40) stmt -> . IF NAME EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> . IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+
+    END             reduce using rule 3 (stmts -> .)
+    NAME            shift and go to state 4
+    MEMREF          shift and go to state 5
+    WHILE           shift and go to state 6
+    IF              shift and go to state 7
+
+    stmts                          shift and go to state 101
+    stmt                           shift and go to state 3
+
+state 90
+
+    (36) stmt -> WHILE NAME GT NUMBER COLON BEGIN . stmts END
+    (2) stmts -> . stmt stmts
+    (3) stmts -> .
+    (4) stmt -> . NAME EQUALS MEMREF
+    (5) stmt -> . MEMREF EQUALS NAME
+    (6) stmt -> . NAME EQUALS NUMBER
+    (7) stmt -> . NAME EQUALS NAME
+    (8) stmt -> . NAME EQUALS NAME PLUS NAME
+    (9) stmt -> . NAME EQUALS NAME MINUS NAME
+    (10) stmt -> . NAME EQUALS NAME PLUS NUMBER
+    (11) stmt -> . NAME EQUALS NAME MINUS NUMBER
+    (12) stmt -> . NAME EQUALS NAME TIMES NAME
+    (13) stmt -> . NAME EQUALS NAME TIMES NUMBER
+    (14) stmt -> . WHILE NAME NE NAME COLON BEGIN stmts END
+    (15) stmt -> . WHILE NAME NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> . WHILE NAME LT NAME COLON BEGIN stmts END
+    (17) stmt -> . WHILE NAME LT NUMBER COLON BEGIN stmts END
+    (33) stmt -> . IF cond COLON BEGIN stmts END
+    (34) stmt -> . WHILE cond COLON BEGIN stmts END
+    (35) stmt -> . WHILE NAME GT NAME COLON BEGIN stmts END
+    (36) stmt -> . WHILE NAME GT NUMBER COLON BEGIN stmts END
+    (37) stmt -> . IF NAME GT NAME COLON BEGIN stmts END
+    (38) stmt -> . IF NAME EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> . IF NAME LT NAME COLON BEGIN stmts END
+    (40) stmt -> . IF NAME EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> . IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+
+    END             reduce using rule 3 (stmts -> .)
+    NAME            shift and go to state 4
+    MEMREF          shift and go to state 5
+    WHILE           shift and go to state 6
+    IF              shift and go to state 7
+
+    stmts                          shift and go to state 102
+    stmt                           shift and go to state 3
+
+state 91
+
+    (34) stmt -> WHILE cond COLON BEGIN stmts END .
+
+    NAME            reduce using rule 34 (stmt -> WHILE cond COLON BEGIN stmts END .)
+    MEMREF          reduce using rule 34 (stmt -> WHILE cond COLON BEGIN stmts END .)
+    WHILE           reduce using rule 34 (stmt -> WHILE cond COLON BEGIN stmts END .)
+    IF              reduce using rule 34 (stmt -> WHILE cond COLON BEGIN stmts END .)
+    $end            reduce using rule 34 (stmt -> WHILE cond COLON BEGIN stmts END .)
+    END             reduce using rule 34 (stmt -> WHILE cond COLON BEGIN stmts END .)
+
+
+state 92
+
+    (33) stmt -> IF cond COLON BEGIN stmts END .
+
+    NAME            reduce using rule 33 (stmt -> IF cond COLON BEGIN stmts END .)
+    MEMREF          reduce using rule 33 (stmt -> IF cond COLON BEGIN stmts END .)
+    WHILE           reduce using rule 33 (stmt -> IF cond COLON BEGIN stmts END .)
+    IF              reduce using rule 33 (stmt -> IF cond COLON BEGIN stmts END .)
+    $end            reduce using rule 33 (stmt -> IF cond COLON BEGIN stmts END .)
+    END             reduce using rule 33 (stmt -> IF cond COLON BEGIN stmts END .)
+
+
+state 93
+
+    (37) stmt -> IF NAME GT NAME COLON BEGIN . stmts END
+    (41) stmt -> IF NAME GT NAME COLON BEGIN . stmts END ELSE COLON BEGIN stmts END
+    (2) stmts -> . stmt stmts
+    (3) stmts -> .
+    (4) stmt -> . NAME EQUALS MEMREF
+    (5) stmt -> . MEMREF EQUALS NAME
+    (6) stmt -> . NAME EQUALS NUMBER
+    (7) stmt -> . NAME EQUALS NAME
+    (8) stmt -> . NAME EQUALS NAME PLUS NAME
+    (9) stmt -> . NAME EQUALS NAME MINUS NAME
+    (10) stmt -> . NAME EQUALS NAME PLUS NUMBER
+    (11) stmt -> . NAME EQUALS NAME MINUS NUMBER
+    (12) stmt -> . NAME EQUALS NAME TIMES NAME
+    (13) stmt -> . NAME EQUALS NAME TIMES NUMBER
+    (14) stmt -> . WHILE NAME NE NAME COLON BEGIN stmts END
+    (15) stmt -> . WHILE NAME NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> . WHILE NAME LT NAME COLON BEGIN stmts END
+    (17) stmt -> . WHILE NAME LT NUMBER COLON BEGIN stmts END
+    (33) stmt -> . IF cond COLON BEGIN stmts END
+    (34) stmt -> . WHILE cond COLON BEGIN stmts END
+    (35) stmt -> . WHILE NAME GT NAME COLON BEGIN stmts END
+    (36) stmt -> . WHILE NAME GT NUMBER COLON BEGIN stmts END
+    (37) stmt -> . IF NAME GT NAME COLON BEGIN stmts END
+    (38) stmt -> . IF NAME EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> . IF NAME LT NAME COLON BEGIN stmts END
+    (40) stmt -> . IF NAME EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> . IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+
+    END             reduce using rule 3 (stmts -> .)
+    NAME            shift and go to state 4
+    MEMREF          shift and go to state 5
+    WHILE           shift and go to state 6
+    IF              shift and go to state 7
+
+    stmts                          shift and go to state 103
+    stmt                           shift and go to state 3
+
+state 94
+
+    (38) stmt -> IF NAME EQEQ NAME COLON BEGIN . stmts END
+    (2) stmts -> . stmt stmts
+    (3) stmts -> .
+    (4) stmt -> . NAME EQUALS MEMREF
+    (5) stmt -> . MEMREF EQUALS NAME
+    (6) stmt -> . NAME EQUALS NUMBER
+    (7) stmt -> . NAME EQUALS NAME
+    (8) stmt -> . NAME EQUALS NAME PLUS NAME
+    (9) stmt -> . NAME EQUALS NAME MINUS NAME
+    (10) stmt -> . NAME EQUALS NAME PLUS NUMBER
+    (11) stmt -> . NAME EQUALS NAME MINUS NUMBER
+    (12) stmt -> . NAME EQUALS NAME TIMES NAME
+    (13) stmt -> . NAME EQUALS NAME TIMES NUMBER
+    (14) stmt -> . WHILE NAME NE NAME COLON BEGIN stmts END
+    (15) stmt -> . WHILE NAME NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> . WHILE NAME LT NAME COLON BEGIN stmts END
+    (17) stmt -> . WHILE NAME LT NUMBER COLON BEGIN stmts END
+    (33) stmt -> . IF cond COLON BEGIN stmts END
+    (34) stmt -> . WHILE cond COLON BEGIN stmts END
+    (35) stmt -> . WHILE NAME GT NAME COLON BEGIN stmts END
+    (36) stmt -> . WHILE NAME GT NUMBER COLON BEGIN stmts END
+    (37) stmt -> . IF NAME GT NAME COLON BEGIN stmts END
+    (38) stmt -> . IF NAME EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> . IF NAME LT NAME COLON BEGIN stmts END
+    (40) stmt -> . IF NAME EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> . IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+
+    END             reduce using rule 3 (stmts -> .)
+    NAME            shift and go to state 4
+    MEMREF          shift and go to state 5
+    WHILE           shift and go to state 6
+    IF              shift and go to state 7
+
+    stmts                          shift and go to state 104
+    stmt                           shift and go to state 3
+
+state 95
+
+    (40) stmt -> IF NAME EQEQ NUMBER COLON BEGIN . stmts END
+    (2) stmts -> . stmt stmts
+    (3) stmts -> .
+    (4) stmt -> . NAME EQUALS MEMREF
+    (5) stmt -> . MEMREF EQUALS NAME
+    (6) stmt -> . NAME EQUALS NUMBER
+    (7) stmt -> . NAME EQUALS NAME
+    (8) stmt -> . NAME EQUALS NAME PLUS NAME
+    (9) stmt -> . NAME EQUALS NAME MINUS NAME
+    (10) stmt -> . NAME EQUALS NAME PLUS NUMBER
+    (11) stmt -> . NAME EQUALS NAME MINUS NUMBER
+    (12) stmt -> . NAME EQUALS NAME TIMES NAME
+    (13) stmt -> . NAME EQUALS NAME TIMES NUMBER
+    (14) stmt -> . WHILE NAME NE NAME COLON BEGIN stmts END
+    (15) stmt -> . WHILE NAME NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> . WHILE NAME LT NAME COLON BEGIN stmts END
+    (17) stmt -> . WHILE NAME LT NUMBER COLON BEGIN stmts END
+    (33) stmt -> . IF cond COLON BEGIN stmts END
+    (34) stmt -> . WHILE cond COLON BEGIN stmts END
+    (35) stmt -> . WHILE NAME GT NAME COLON BEGIN stmts END
+    (36) stmt -> . WHILE NAME GT NUMBER COLON BEGIN stmts END
+    (37) stmt -> . IF NAME GT NAME COLON BEGIN stmts END
+    (38) stmt -> . IF NAME EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> . IF NAME LT NAME COLON BEGIN stmts END
+    (40) stmt -> . IF NAME EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> . IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+
+    END             reduce using rule 3 (stmts -> .)
+    NAME            shift and go to state 4
+    MEMREF          shift and go to state 5
+    WHILE           shift and go to state 6
+    IF              shift and go to state 7
+
+    stmts                          shift and go to state 105
+    stmt                           shift and go to state 3
+
+state 96
+
+    (39) stmt -> IF NAME LT NAME COLON BEGIN . stmts END
+    (2) stmts -> . stmt stmts
+    (3) stmts -> .
+    (4) stmt -> . NAME EQUALS MEMREF
+    (5) stmt -> . MEMREF EQUALS NAME
+    (6) stmt -> . NAME EQUALS NUMBER
+    (7) stmt -> . NAME EQUALS NAME
+    (8) stmt -> . NAME EQUALS NAME PLUS NAME
+    (9) stmt -> . NAME EQUALS NAME MINUS NAME
+    (10) stmt -> . NAME EQUALS NAME PLUS NUMBER
+    (11) stmt -> . NAME EQUALS NAME MINUS NUMBER
+    (12) stmt -> . NAME EQUALS NAME TIMES NAME
+    (13) stmt -> . NAME EQUALS NAME TIMES NUMBER
+    (14) stmt -> . WHILE NAME NE NAME COLON BEGIN stmts END
+    (15) stmt -> . WHILE NAME NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> . WHILE NAME LT NAME COLON BEGIN stmts END
+    (17) stmt -> . WHILE NAME LT NUMBER COLON BEGIN stmts END
+    (33) stmt -> . IF cond COLON BEGIN stmts END
+    (34) stmt -> . WHILE cond COLON BEGIN stmts END
+    (35) stmt -> . WHILE NAME GT NAME COLON BEGIN stmts END
+    (36) stmt -> . WHILE NAME GT NUMBER COLON BEGIN stmts END
+    (37) stmt -> . IF NAME GT NAME COLON BEGIN stmts END
+    (38) stmt -> . IF NAME EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> . IF NAME LT NAME COLON BEGIN stmts END
+    (40) stmt -> . IF NAME EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> . IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+
+    END             reduce using rule 3 (stmts -> .)
+    NAME            shift and go to state 4
+    MEMREF          shift and go to state 5
+    WHILE           shift and go to state 6
+    IF              shift and go to state 7
+
+    stmts                          shift and go to state 106
+    stmt                           shift and go to state 3
+
+state 97
+
+    (14) stmt -> WHILE NAME NE NAME COLON BEGIN stmts . END
+
+    END             shift and go to state 107
+
+
+state 98
+
+    (15) stmt -> WHILE NAME NE NUMBER COLON BEGIN stmts . END
+
+    END             shift and go to state 108
+
+
+state 99
+
+    (16) stmt -> WHILE NAME LT NAME COLON BEGIN stmts . END
+
+    END             shift and go to state 109
+
+
+state 100
+
+    (17) stmt -> WHILE NAME LT NUMBER COLON BEGIN stmts . END
+
+    END             shift and go to state 110
+
+
+state 101
+
+    (35) stmt -> WHILE NAME GT NAME COLON BEGIN stmts . END
+
+    END             shift and go to state 111
+
+
+state 102
+
+    (36) stmt -> WHILE NAME GT NUMBER COLON BEGIN stmts . END
+
+    END             shift and go to state 112
+
+
+state 103
+
+    (37) stmt -> IF NAME GT NAME COLON BEGIN stmts . END
+    (41) stmt -> IF NAME GT NAME COLON BEGIN stmts . END ELSE COLON BEGIN stmts END
+
+    END             shift and go to state 113
+
+
+state 104
+
+    (38) stmt -> IF NAME EQEQ NAME COLON BEGIN stmts . END
+
+    END             shift and go to state 114
+
+
+state 105
+
+    (40) stmt -> IF NAME EQEQ NUMBER COLON BEGIN stmts . END
+
+    END             shift and go to state 115
+
+
+state 106
+
+    (39) stmt -> IF NAME LT NAME COLON BEGIN stmts . END
+
+    END             shift and go to state 116
+
+
+state 107
+
+    (14) stmt -> WHILE NAME NE NAME COLON BEGIN stmts END .
+
+    NAME            reduce using rule 14 (stmt -> WHILE NAME NE NAME COLON BEGIN stmts END .)
+    MEMREF          reduce using rule 14 (stmt -> WHILE NAME NE NAME COLON BEGIN stmts END .)
+    WHILE           reduce using rule 14 (stmt -> WHILE NAME NE NAME COLON BEGIN stmts END .)
+    IF              reduce using rule 14 (stmt -> WHILE NAME NE NAME COLON BEGIN stmts END .)
+    $end            reduce using rule 14 (stmt -> WHILE NAME NE NAME COLON BEGIN stmts END .)
+    END             reduce using rule 14 (stmt -> WHILE NAME NE NAME COLON BEGIN stmts END .)
+
+
+state 108
+
+    (15) stmt -> WHILE NAME NE NUMBER COLON BEGIN stmts END .
+
+    NAME            reduce using rule 15 (stmt -> WHILE NAME NE NUMBER COLON BEGIN stmts END .)
+    MEMREF          reduce using rule 15 (stmt -> WHILE NAME NE NUMBER COLON BEGIN stmts END .)
+    WHILE           reduce using rule 15 (stmt -> WHILE NAME NE NUMBER COLON BEGIN stmts END .)
+    IF              reduce using rule 15 (stmt -> WHILE NAME NE NUMBER COLON BEGIN stmts END .)
+    $end            reduce using rule 15 (stmt -> WHILE NAME NE NUMBER COLON BEGIN stmts END .)
+    END             reduce using rule 15 (stmt -> WHILE NAME NE NUMBER COLON BEGIN stmts END .)
+
+
+state 109
+
+    (16) stmt -> WHILE NAME LT NAME COLON BEGIN stmts END .
+
+    NAME            reduce using rule 16 (stmt -> WHILE NAME LT NAME COLON BEGIN stmts END .)
+    MEMREF          reduce using rule 16 (stmt -> WHILE NAME LT NAME COLON BEGIN stmts END .)
+    WHILE           reduce using rule 16 (stmt -> WHILE NAME LT NAME COLON BEGIN stmts END .)
+    IF              reduce using rule 16 (stmt -> WHILE NAME LT NAME COLON BEGIN stmts END .)
+    $end            reduce using rule 16 (stmt -> WHILE NAME LT NAME COLON BEGIN stmts END .)
+    END             reduce using rule 16 (stmt -> WHILE NAME LT NAME COLON BEGIN stmts END .)
+
+
+state 110
+
+    (17) stmt -> WHILE NAME LT NUMBER COLON BEGIN stmts END .
+
+    NAME            reduce using rule 17 (stmt -> WHILE NAME LT NUMBER COLON BEGIN stmts END .)
+    MEMREF          reduce using rule 17 (stmt -> WHILE NAME LT NUMBER COLON BEGIN stmts END .)
+    WHILE           reduce using rule 17 (stmt -> WHILE NAME LT NUMBER COLON BEGIN stmts END .)
+    IF              reduce using rule 17 (stmt -> WHILE NAME LT NUMBER COLON BEGIN stmts END .)
+    $end            reduce using rule 17 (stmt -> WHILE NAME LT NUMBER COLON BEGIN stmts END .)
+    END             reduce using rule 17 (stmt -> WHILE NAME LT NUMBER COLON BEGIN stmts END .)
+
+
+state 111
+
+    (35) stmt -> WHILE NAME GT NAME COLON BEGIN stmts END .
+
+    NAME            reduce using rule 35 (stmt -> WHILE NAME GT NAME COLON BEGIN stmts END .)
+    MEMREF          reduce using rule 35 (stmt -> WHILE NAME GT NAME COLON BEGIN stmts END .)
+    WHILE           reduce using rule 35 (stmt -> WHILE NAME GT NAME COLON BEGIN stmts END .)
+    IF              reduce using rule 35 (stmt -> WHILE NAME GT NAME COLON BEGIN stmts END .)
+    $end            reduce using rule 35 (stmt -> WHILE NAME GT NAME COLON BEGIN stmts END .)
+    END             reduce using rule 35 (stmt -> WHILE NAME GT NAME COLON BEGIN stmts END .)
+
+
+state 112
+
+    (36) stmt -> WHILE NAME GT NUMBER COLON BEGIN stmts END .
+
+    NAME            reduce using rule 36 (stmt -> WHILE NAME GT NUMBER COLON BEGIN stmts END .)
+    MEMREF          reduce using rule 36 (stmt -> WHILE NAME GT NUMBER COLON BEGIN stmts END .)
+    WHILE           reduce using rule 36 (stmt -> WHILE NAME GT NUMBER COLON BEGIN stmts END .)
+    IF              reduce using rule 36 (stmt -> WHILE NAME GT NUMBER COLON BEGIN stmts END .)
+    $end            reduce using rule 36 (stmt -> WHILE NAME GT NUMBER COLON BEGIN stmts END .)
+    END             reduce using rule 36 (stmt -> WHILE NAME GT NUMBER COLON BEGIN stmts END .)
+
+
+state 113
+
+    (37) stmt -> IF NAME GT NAME COLON BEGIN stmts END .
+    (41) stmt -> IF NAME GT NAME COLON BEGIN stmts END . ELSE COLON BEGIN stmts END
+
+    NAME            reduce using rule 37 (stmt -> IF NAME GT NAME COLON BEGIN stmts END .)
+    MEMREF          reduce using rule 37 (stmt -> IF NAME GT NAME COLON BEGIN stmts END .)
+    WHILE           reduce using rule 37 (stmt -> IF NAME GT NAME COLON BEGIN stmts END .)
+    IF              reduce using rule 37 (stmt -> IF NAME GT NAME COLON BEGIN stmts END .)
+    $end            reduce using rule 37 (stmt -> IF NAME GT NAME COLON BEGIN stmts END .)
+    END             reduce using rule 37 (stmt -> IF NAME GT NAME COLON BEGIN stmts END .)
+    ELSE            shift and go to state 117
+
+
+state 114
+
+    (38) stmt -> IF NAME EQEQ NAME COLON BEGIN stmts END .
+
+    NAME            reduce using rule 38 (stmt -> IF NAME EQEQ NAME COLON BEGIN stmts END .)
+    MEMREF          reduce using rule 38 (stmt -> IF NAME EQEQ NAME COLON BEGIN stmts END .)
+    WHILE           reduce using rule 38 (stmt -> IF NAME EQEQ NAME COLON BEGIN stmts END .)
+    IF              reduce using rule 38 (stmt -> IF NAME EQEQ NAME COLON BEGIN stmts END .)
+    $end            reduce using rule 38 (stmt -> IF NAME EQEQ NAME COLON BEGIN stmts END .)
+    END             reduce using rule 38 (stmt -> IF NAME EQEQ NAME COLON BEGIN stmts END .)
+
+
+state 115
+
+    (40) stmt -> IF NAME EQEQ NUMBER COLON BEGIN stmts END .
+
+    NAME            reduce using rule 40 (stmt -> IF NAME EQEQ NUMBER COLON BEGIN stmts END .)
+    MEMREF          reduce using rule 40 (stmt -> IF NAME EQEQ NUMBER COLON BEGIN stmts END .)
+    WHILE           reduce using rule 40 (stmt -> IF NAME EQEQ NUMBER COLON BEGIN stmts END .)
+    IF              reduce using rule 40 (stmt -> IF NAME EQEQ NUMBER COLON BEGIN stmts END .)
+    $end            reduce using rule 40 (stmt -> IF NAME EQEQ NUMBER COLON BEGIN stmts END .)
+    END             reduce using rule 40 (stmt -> IF NAME EQEQ NUMBER COLON BEGIN stmts END .)
+
+
+state 116
+
+    (39) stmt -> IF NAME LT NAME COLON BEGIN stmts END .
+
+    NAME            reduce using rule 39 (stmt -> IF NAME LT NAME COLON BEGIN stmts END .)
+    MEMREF          reduce using rule 39 (stmt -> IF NAME LT NAME COLON BEGIN stmts END .)
+    WHILE           reduce using rule 39 (stmt -> IF NAME LT NAME COLON BEGIN stmts END .)
+    IF              reduce using rule 39 (stmt -> IF NAME LT NAME COLON BEGIN stmts END .)
+    $end            reduce using rule 39 (stmt -> IF NAME LT NAME COLON BEGIN stmts END .)
+    END             reduce using rule 39 (stmt -> IF NAME LT NAME COLON BEGIN stmts END .)
+
+
+state 117
+
+    (41) stmt -> IF NAME GT NAME COLON BEGIN stmts END ELSE . COLON BEGIN stmts END
+
+    COLON           shift and go to state 118
+
+
+state 118
+
+    (41) stmt -> IF NAME GT NAME COLON BEGIN stmts END ELSE COLON . BEGIN stmts END
+
+    BEGIN           shift and go to state 119
+
+
+state 119
+
+    (41) stmt -> IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN . stmts END
+    (2) stmts -> . stmt stmts
+    (3) stmts -> .
+    (4) stmt -> . NAME EQUALS MEMREF
+    (5) stmt -> . MEMREF EQUALS NAME
+    (6) stmt -> . NAME EQUALS NUMBER
+    (7) stmt -> . NAME EQUALS NAME
+    (8) stmt -> . NAME EQUALS NAME PLUS NAME
+    (9) stmt -> . NAME EQUALS NAME MINUS NAME
+    (10) stmt -> . NAME EQUALS NAME PLUS NUMBER
+    (11) stmt -> . NAME EQUALS NAME MINUS NUMBER
+    (12) stmt -> . NAME EQUALS NAME TIMES NAME
+    (13) stmt -> . NAME EQUALS NAME TIMES NUMBER
+    (14) stmt -> . WHILE NAME NE NAME COLON BEGIN stmts END
+    (15) stmt -> . WHILE NAME NE NUMBER COLON BEGIN stmts END
+    (16) stmt -> . WHILE NAME LT NAME COLON BEGIN stmts END
+    (17) stmt -> . WHILE NAME LT NUMBER COLON BEGIN stmts END
+    (33) stmt -> . IF cond COLON BEGIN stmts END
+    (34) stmt -> . WHILE cond COLON BEGIN stmts END
+    (35) stmt -> . WHILE NAME GT NAME COLON BEGIN stmts END
+    (36) stmt -> . WHILE NAME GT NUMBER COLON BEGIN stmts END
+    (37) stmt -> . IF NAME GT NAME COLON BEGIN stmts END
+    (38) stmt -> . IF NAME EQEQ NAME COLON BEGIN stmts END
+    (39) stmt -> . IF NAME LT NAME COLON BEGIN stmts END
+    (40) stmt -> . IF NAME EQEQ NUMBER COLON BEGIN stmts END
+    (41) stmt -> . IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END
+
+    END             reduce using rule 3 (stmts -> .)
+    NAME            shift and go to state 4
+    MEMREF          shift and go to state 5
+    WHILE           shift and go to state 6
+    IF              shift and go to state 7
+
+    stmts                          shift and go to state 120
+    stmt                           shift and go to state 3
+
+state 120
+
+    (41) stmt -> IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts . END
+
+    END             shift and go to state 121
+
+
+state 121
+
+    (41) stmt -> IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END .
+
+    NAME            reduce using rule 41 (stmt -> IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END .)
+    MEMREF          reduce using rule 41 (stmt -> IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END .)
+    WHILE           reduce using rule 41 (stmt -> IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END .)
+    IF              reduce using rule 41 (stmt -> IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END .)
+    $end            reduce using rule 41 (stmt -> IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END .)
+    END             reduce using rule 41 (stmt -> IF NAME GT NAME COLON BEGIN stmts END ELSE COLON BEGIN stmts END .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for AND in state 29 resolved as shift
+WARNING: shift/reduce conflict for OR in state 29 resolved as shift
+WARNING: shift/reduce conflict for COLON in state 39 resolved as shift
+WARNING: shift/reduce conflict for COLON in state 40 resolved as shift
+WARNING: shift/reduce conflict for COLON in state 41 resolved as shift
+WARNING: shift/reduce conflict for COLON in state 42 resolved as shift
+WARNING: shift/reduce conflict for COLON in state 43 resolved as shift
+WARNING: shift/reduce conflict for COLON in state 44 resolved as shift
+WARNING: shift/reduce conflict for AND in state 52 resolved as shift
+WARNING: shift/reduce conflict for OR in state 52 resolved as shift
+WARNING: shift/reduce conflict for AND in state 53 resolved as shift
+WARNING: shift/reduce conflict for OR in state 53 resolved as shift
+WARNING: shift/reduce conflict for COLON in state 57 resolved as shift
+WARNING: shift/reduce conflict for COLON in state 59 resolved as shift
+WARNING: shift/reduce conflict for COLON in state 60 resolved as shift
+WARNING: shift/reduce conflict for COLON in state 61 resolved as shift

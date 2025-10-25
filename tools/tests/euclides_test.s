@@ -1,0 +1,16 @@
+CARGA R4, M[375]
+CARGA R5, M[1535]
+loop:
+COMP R4, R5
+SICERO end
+SIPOS a_gt
+SINEG b_gt
+a_gt:
+RESTA R4, R5
+SALTA loop
+b_gt:
+RESTA R5, R4
+SALTA loop
+end:
+GUARD R4, M[131072]
+PARA

@@ -1,0 +1,22 @@
+{
+  "64": [
+    "PROCRASTINA", "VUELVE", "PARA"
+  ],
+  "54": [
+    "SUMA", "RESTA", "MULT", "DIVI", "AND", "OR", "XOR", "COMP", "COPIA"
+  ],
+  "59": [
+    "NOT", "LIMP", "INCRE", "DECRE", "APILA", "DESAPILA"
+  ],
+  "35": [
+    "CARGA", "GUARD", "SIREGCERO", "SIREGNCERO"
+  ],
+  "27": [
+    "ICARGA", "ISUMA", "IRESTA", "IMULT",
+    "IDIVI", "IAND", "IOR", "IXOR", "ICOMP"
+  ],
+  "40": [
+    "SALTA", "LLAMA", "SICERO", "SINCERO", "SIPOS", "SINEG",
+    "SIOVERFL", "SIMAYOR", "SIMENOR", "INTERRUP"
+  ]
+}
