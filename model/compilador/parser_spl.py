@@ -769,6 +769,17 @@ def p_stmt_print(p):
                 emit_string_no_nl(s)
         elif kind == 'expr':
             ast = it[1]
+            # Send a numeric marker first: 0xFF followed by 0x4E ('N' for Number)
+            # Pattern: 0xFF 0x4E 0x00 ... 0x00 0x02 (last byte = 2 to mark as number prefix)
+            num_marker_lbl = ctx.new_label('str')
+            _data_section.append(f"{num_marker_lbl}:")
+            marker_bytes = b'\xFF\x4E\x00\x00\x00\x00\x00\x02'
+            marker_val = int.from_bytes(marker_bytes, 'little')
+            _data_section.append(f".data {marker_val}")
+            marker_reg = ctx.new_temp()
+            lines.append(f"CARGA R{marker_reg}, M[{num_marker_lbl}]")
+            lines.append(f"GUARD R{marker_reg}, M[{es_addr}]")
+            # Now send the actual number value
             r = ctx.new_temp()
             lines.extend(generate_expr_asm(ast, r))
             lines.append(f"GUARD R{r}, M[{es_addr}]")

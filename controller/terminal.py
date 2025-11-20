@@ -16,6 +16,9 @@ _write_buffers: dict[int, dict] = {}
 _buf_lock = threading.Lock()
 _FLUSH_DELAY = 0.05  # seconds
 
+# Flag to track if next value should be treated as number
+_next_is_number = False
+
 
 class InputNeeded(Exception):
     """Raised by the bus/CPU when an E/S read requires user input."""
@@ -33,7 +36,7 @@ def register_write_callback(cb: Callable[[int, str], None]):
 def write_notify(address: int, uint64_value: int):
     """Called by Memory when an E/S address is written. Decodes the 64-bit
     value into a small UTF-8 string and calls the registered callback."""
-    global _write_callback
+    global _write_callback, _next_is_number
     # Heuristic: if the 64-bit word contains only printable ASCII bytes
     # (after stripping trailing zeros) then decode and show as text. Otherwise
     # display the numeric value (so programs that GUARD numbers print numbers).
@@ -41,9 +44,20 @@ def write_notify(address: int, uint64_value: int):
         b = int(uint64_value).to_bytes(8, 'little')
         bstripped = b.rstrip(b"\x00")
         
-        # Special case 1: newline marker from print statements
+        # Check for numeric marker: 0xFF 0x4E 0x00 ... 0x02
+        if len(b) == 8 and b[0] == 0xFF and b[1] == 0x4E and b[7] == 2:
+            # Numeric marker detected - next value is a number
+            _next_is_number = True
+            return  # Don't display the marker itself
+        
+        # Check if previous value was a numeric marker
+        if _next_is_number:
+            # Force treat as number
+            text = str(int(uint64_value))
+            _next_is_number = False
+        # Special case: newline marker from print statements
         # Pattern: \n\x00\x00\x00\x00\x00\x00\x01
-        if len(b) == 8 and b[0] == 10 and b[7] == 1 and b[1:7] == b'\x00' * 6:
+        elif len(b) == 8 and b[0] == 10 and b[7] == 1 and b[1:7] == b'\x00' * 6:
             text = '\n'
         # Special case 2: empty value
         elif not bstripped:
