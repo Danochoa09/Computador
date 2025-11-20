@@ -1,0 +1,81 @@
+var A[10][10]
+var B[10][10]
+var C[10][10]
+var f1
+var c1
+var f2
+var c2
+var i
+var j
+var k
+var sum
+
+print("Enter f1:")
+f1 = input()
+print("Enter c1:")
+c1 = input()
+print("Enter f2:")
+f2 = input()
+print("Enter c2:")
+c2 = input()
+
+# Check dimensions: c1 must equal f2
+if c1 == f2 :
+    # dimensions ok
+end
+if c1 != f2 :
+    print("Incompatible dimensions")
+    PARA
+end
+
+# Read matrix A
+i = 0
+while i < f1 :
+    j = 0
+    while j < c1 :
+        print("A element [", i, "][", j, "]: ")
+        A[i][j] = input()
+        j = j + 1
+    end
+    i = i + 1
+end
+
+# Read matrix B
+i = 0
+while i < f2 :
+    j = 0
+    while j < c2 :
+        print("B element [", i, "][", j, "]: ")
+        B[i][j] = input()
+        j = j + 1
+    end
+    i = i + 1
+end
+
+# Multiply into C
+i = 0
+while i < f1 :
+    j = 0
+    while j < c2 :
+        sum = 0
+        k = 0
+        while k < c1 :
+            sum = sum + A[i][k] * B[k][j]
+            k = k + 1
+        end
+        C[i][j] = sum
+        j = j + 1
+    end
+    i = i + 1
+end
+
+# Print result
+i = 0
+while i < f1 :
+    j = 0
+    while j < c2 :
+        print(C[i][j])
+        j = j + 1
+    end
+    i = i + 1
+end

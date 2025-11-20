@@ -10,37 +10,21 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
 
-/* Very small macro table (linked list) for demo */
-struct macro { char *name; char *value; struct macro *next; } *macros = NULL;
+/* This FLEX lexer is a thin wrapper that delegates the real preprocessing
+   work to the Python module `tools.parser_spl`. The generated executable
+   will replace itself with a Python process so stdin/stdout are preserved
+   and the pipeline `cat file | spl_preprocessor.exe | assembler.exe` works.
 
-void add_macro(const char *name, const char *value) {
-    struct macro *m = malloc(sizeof(*m));
-    m->name = strdup(name);
-    m->value = strdup(value);
-    m->next = macros;
-    macros = m;
-}
-
-char *lookup_macro(const char *name) {
-    for (struct macro *m = macros; m; m = m->next) {
-        if (strcmp(m->name, name) == 0) return m->value;
-    }
-    return NULL;
-}
+   If execlp fails we fall back to calling system() as a degraded mode.
+*/
 %}
 
 %%
-"#include"[ \t]+\"[^"]+\"    {
-    /* very simple include handling: print a comment with filename */
-    char *fn = strdup(yytext);
-    printf("/* included: %s */\n", fn);
-}
-"#define"[ \t]+[A-Za-z_][A-Za-z0-9_]*[ \t]+[^\r\n]+  {
-    /* parse macro definition and store - simplistic */
-    /* This is a placeholder; full implementation should parse properly */
-    printf("/* macro defined: %s */\n", yytext);
-}
+"#include"[ \t]+\"[^\"]+\"    { /* passthrough - delegate to Python */ ECHO; }
+"#define"[ \t]+[A-Za-z_][A-Za-z0-9_]*[ \t]+[^\r\n]+  { /* passthrough */ ECHO; }
 "//".*                        { /* skip single-line comments */ }
 "/\*"([^*]|\*+[^*/])*"*/"  { /* skip block comment */ }
 [ \t\r\n]+                    { ECHO; }
@@ -48,6 +32,17 @@ char *lookup_macro(const char *name) {
 %%
 
 int main(int argc, char **argv) {
-    yylex();
-    return 0;
+    /* Replace this process with `python -c "..."` which reads stdin and
+       writes the preprocessed output to stdout by calling the Python
+       pipeline function. Using execlp preserves stdin/stdout for pipes. */
+    const char *pycode = "import sys; from tools.parser_spl import compile_high_level; txt=sys.stdin.read(); sys.stdout.write(compile_high_level(txt))";
+
+    /* Try to replace process */
+    execlp("python", "python", "-c", pycode, (char *)NULL);
+
+    /* If we reach here execlp failed; fall back to system() as degraded mode */
+    fprintf(stderr, "execlp failed: %s\n", strerror(errno));
+    char cmd[4096];
+    snprintf(cmd, sizeof(cmd), "python -c \"%s\"", pycode);
+    return system(cmd);
 }

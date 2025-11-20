@@ -1,0 +1,18 @@
+; Test del preprocesador
+; Este es un programa simple en ensamblador que usa macros y librerías
+
+#define OUTPUT_ADDR 131072
+#define NUM1 10
+#define NUM2 5
+
+; Cargar dos números
+ICARGA R4, NUM1
+ICARGA R5, NUM2
+
+; Sumarlos
+SUMA R4, R5
+
+; Guardar en salida
+GUARD R4, M[OUTPUT_ADDR]
+
+PARA

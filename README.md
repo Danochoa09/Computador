@@ -46,15 +46,15 @@ Plantillas FLEX
 ---------------
 En `tools/` encontrarás dos ficheros de ejemplo:
 - `spl_preprocessor.l` - plantilla FLEX para preprocesador (manejo de includes y macros).
-- `assembler.l` - plantilla FLEX para el ensamblador (tokenización del lenguaje de ensamblador intermedio y acciones que imprimen el cÃ³digo objeto en formato textual simple). 
+- `assembler.l` - plantilla FLEX para el ensamblador (tokenización del lenguaje de ensamblador intermedio y acciones que imprimen el código objeto en formato textual simple).
 
 Enlazador-Cargador (esqueleto)
 -----------------------------
-`tools/linker.py` implementa: lectura de archivos `.o`, construcciÃ³n de tabla de símbolos global, aplicaciÃ³n de relocaciones y escritura de un fichero de carga (binario textual que el simulador puede cargar con `Action.load_machine_code`).
+`tools/linker.py` implementa: lectura de archivos `.o`, construcción de tabla de símbolos global, aplicación de relocaciones y escritura de un fichero de carga (binario textual que el simulador puede cargar con `Action.load_machine_code`).
 
 Cómo usar (resumen)
 -------------------
-- Para desarrollar/usar el preprocesador y ensamblador con flex:
+- Para usar el preprocesador y ensamblador con flex:
   1. `flex spl_preprocessor.l` → `lex.yy.c`  
   2. `gcc lex.yy.c -lfl -o preproc`  
   3. `./preproc < input.spl > out.s`  
@@ -95,19 +95,3 @@ cd "c:\Users\danoc\OneDrive\Escritorio\FLOW UNAL\Lenguajes\Computador"
 python -c "import sys; sys.path.insert(0, r'c:\\Users\\danoc\\OneDrive\\Escritorio\\FLOW UNAL\\Lenguajes\\Computador'); from tools.tests.test_euclides_pipeline import test_euclides_pipeline_creates_guard; test_euclides_pipeline_creates_guard(); print('OK')"
 ```
 
-Notas
------
-- La pipeline ahora usa un preprocesador mínimo basado en PLY (`tools/lex_spl.py` y `tools/parser_spl.py`).
-- El simulador detecta ahora automáticamente la dirección de resultado buscando la instrucción `GUARD` en la imagen generada (se soporta tanto el flujo a través del pipeline como la detección directa en binarios cargados).
-- La UI muestra registros y la salida de memoria en hexadecimal por defecto. El panel de memoria permite edición en el formato `addr:value` (p. ej. `131072:0x1A`).
-
-Limitaciones y pasos siguientes
--------------------------------
-- Los archivos `.l` son plantillas que debes completar con las acciones concretas de ensamblado (traducción de mnemónicos a bits) según la ISA en `ISA.json` y `opcodes.json`.
-- El enlazador es un esqueleto funcional: acepta los campos propuestos, resuelve símbolos locales y externos y aplica relocaciones ABS y REL relativas simples.
-
-Si quieres, puedo:
-- Generar un ensamblador completo que utilice `ISA.json` y `opcodes.json` del repositorio para emitir instrucciones binarias exactas.
-- Implementar macros y preprocesamiento completo con `spl_preprocessor.l` o con un preprocesador en Python para mayor rapidez.
-
-Indica si quieres que genere ahora las herramientas completas (ensamblador que emite binarios compatibles, enlazador que genere el archivo listo para cargar y ejemplos de programas SPL).

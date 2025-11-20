@@ -43,6 +43,13 @@ class Action:
         CPU.ALU.set_up()
         Memory.set_up()
 
+        # Register terminal input callback to resume execution when input arrives
+        try:
+            from controller import terminal as _term
+            _term.register_input_callback(Action._on_input_available)
+        except Exception:
+            pass
+
         # Desplegar interfaz grafica
         # TODO @sebastian desplegar
 
@@ -53,6 +60,8 @@ class Action:
 
     # Stepping control flag
     _is_stepping: bool = False
+    # Execution waiting for input
+    _waiting_for_input: bool = False
 
     @staticmethod
     def start_stepping(address: int) -> None:
@@ -271,14 +280,83 @@ class Action:
         CPU.EN_EJECUCION = True
 
         # Ciclo Fetch-Decode-Execute
-        while not CPU.PARA_INSTRUCTION:
-            CPU.fetch()
-            CPU.decode()
-            CPU.execute()
+        try:
+            while not CPU.PARA_INSTRUCTION:
+                CPU.fetch()
+                CPU.decode()
+                CPU.execute()
+        except Exception as e:
+            # If execution requests input, wait here until input is available
+            try:
+                from controller import terminal as _term
+                if isinstance(e, _term.InputNeeded):
+                    # Block until input is available, then finish the instruction
+                    import time
+                    while not _term.has_input():
+                        time.sleep(0.05)
+                    # Now attempt to complete the instruction
+                    CPU.execute()
+                    # Continue execution loop
+                    while not CPU.PARA_INSTRUCTION:
+                        CPU.fetch()
+                        CPU.decode()
+                        try:
+                            CPU.execute()
+                        except Exception as e2:
+                            if isinstance(e2, _term.InputNeeded):
+                                # wait again
+                                while not _term.has_input():
+                                    time.sleep(0.05)
+                                CPU.execute()
+                                continue
+                            else:
+                                raise
+                    # finished normally
+                    pass
+            except Exception:
+                # If it's not InputNeeded or something else failed, re-raise
+                raise
 
         # Refrescar la CPU:
         #   Ejecución e instrucción de parada en Falso
         CPU.refresh()
+
+    @staticmethod
+    def _on_input_available():
+        """Called when terminal input is pushed. If execution was paused waiting
+        for input, resume the interrupted instruction and continue execution."""
+        try:
+            from controller import terminal as _term
+            if not Action._waiting_for_input:
+                return
+            # Attempt to finish the current instruction
+            try:
+                CPU.execute()
+            except Exception as e:
+                if isinstance(e, _term.InputNeeded):
+                    # Still no input; remain waiting
+                    Action._waiting_for_input = True
+                    return
+                else:
+                    raise
+
+            # Instruction finished; resume normal execution loop
+            Action._waiting_for_input = False
+            while not CPU.PARA_INSTRUCTION:
+                CPU.fetch()
+                CPU.decode()
+                try:
+                    CPU.execute()
+                except Exception as e:
+                    if isinstance(e, _term.InputNeeded):
+                        Action._waiting_for_input = True
+                        return
+                    else:
+                        raise
+            CPU.refresh()
+        except Exception:
+            # Swallow to avoid crashing the GUI
+            pass
 
 
 # -----------------------

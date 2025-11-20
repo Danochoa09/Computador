@@ -517,6 +517,45 @@ class ISA:
             ALU.write_register(r, v1)
 
         @staticmethod
+        def cargaind():
+            """
+            Carga indirecta: carga en un registro el contenido de memoria cuya dirección está en otro registro.
+            Syntax (assembly): CARGAIND Rdest Raddr
+            """
+            r_dest: int = NC.bitarray2natural(CU.instruction_args[1])
+            r_addr: int = NC.bitarray2natural(CU.instruction_args[2])
+
+            # Read the address from the address register, truncate/convert to 24-bit memory address
+            addr_nat: int = NC.bitarray2natural(ALU.read_register(r_addr))
+            m_bin: bitarray = NC.natural2bitarray(addr_nat, 24)
+
+            bus.DirectionBus.write(m_bin)
+            bus.ControlBus.write(bus.ControlBus.READ_MEMORY_BIN)
+            bus.action()
+            word: bitarray = bus.DataBus.read().copy()
+
+            ALU.write_register(r_dest, word)
+
+        @staticmethod
+        def guardind():
+            """
+            Guardar indirecto: guarda en memoria (dirección en registro) el contenido de un registro.
+            Syntax: GUARDIND Rsrc Raddr
+            """
+            r_src: int = NC.bitarray2natural(CU.instruction_args[1])
+            r_addr: int = NC.bitarray2natural(CU.instruction_args[2])
+
+            addr_nat: int = NC.bitarray2natural(ALU.read_register(r_addr))
+            m_bin: bitarray = NC.natural2bitarray(addr_nat, 24)
+
+            word: bitarray = ALU.read_register(r_src).copy()
+
+            bus.DirectionBus.write(m_bin)
+            bus.ControlBus.write(bus.ControlBus.WRITE_MEMORY_BIN)
+            bus.DataBus.write(word)
+            bus.action()
+
+        @staticmethod
         def not_bit_bit():
             """Not Bitwise"""
             r: int = NC.bitarray2natural(CU.instruction_args[1])
@@ -872,7 +911,8 @@ operations: dict[str, list[Callable[[], None]]] = {
     ],
     "54": [
         ISA.R.suma, ISA.R.resta, ISA.R.mult, ISA.R.divi, ISA.R.y_bit_bit,
-        ISA.R.o_bit_bit, ISA.R.xor_bit_bit, ISA.R.comp, ISA.R.copia
+        ISA.R.o_bit_bit, ISA.R.xor_bit_bit, ISA.R.comp, ISA.R.copia,
+        ISA.R.cargaind, ISA.R.guardind
     ],
     "59": [
         ISA.R.not_bit_bit, ISA.R.limpia, ISA.R.incr, ISA.R.decr, ISA.R.apila, ISA.R.desapila

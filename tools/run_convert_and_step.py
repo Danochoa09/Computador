@@ -4,7 +4,7 @@ root = os.path.dirname(os.path.dirname(__file__))
 if root not in sys.path:
     sys.path.insert(0, root)
 
-from tools import flex_pipeline
+from model.compilador import flex_pipeline
 from controller.computer import Action
 from model.enlazador.enlazador import Enlazador
 

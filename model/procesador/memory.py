@@ -33,6 +33,16 @@ class Memory:
         if not (0 <= direction < constants.MEMORY_SIZE):
             raise ValueError("Dirección de memoria fuera de rango.")
 
+        # If reading from E/S range and GUI provided input, serve it first
+        try:
+            from controller import terminal as _term
+            if constants.E_S_RANGE[0] <= direction <= constants.E_S_RANGE[1]:
+                if _term.has_input():
+                    v = _term.pop_input_uint64()
+                    return np.uint64(v)
+        except Exception:
+            # ignore terminal bridge errors
+            pass
         return Memory.array[direction]
 
     @staticmethod
@@ -49,3 +59,11 @@ class Memory:
         Memory.array[direction] = value
         if direction not in Memory.memory_changed:
             Memory.memory_changed.append(direction)
+        # If writing to E/S range, notify terminal (GUI)
+        try:
+            from controller import terminal as _term
+            if constants.E_S_RANGE[0] <= direction <= constants.E_S_RANGE[1]:
+                # decode uint64 to int and notify
+                _term.write_notify(direction, int(value))
+        except Exception:
+            pass

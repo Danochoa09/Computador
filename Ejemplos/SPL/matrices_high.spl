@@ -1,0 +1,47 @@
+var A[2][2]
+var B[2][2]
+var C[2][2]
+var i
+var j
+var k
+var sum
+
+# Inicializa A
+A[0][0] = 1
+A[0][1] = 2
+A[1][0] = 3
+A[1][1] = 4
+
+# Inicializa B
+B[0][0] = 1
+B[0][1] = 2
+B[1][0] = 3
+B[1][1] = 4
+
+# Multiplicación de matrices
+i = 0
+while i < 2 :
+    j = 0
+    while j < 2 :
+        sum = 0
+        k = 0
+        while k < 2 :
+            sum = sum + A[i][k] * B[k][j]
+            k = k + 1
+        end
+        C[i][j] = sum
+        j = j + 1
+    end
+    i = i + 1
+end
+
+# Imprime el resultado
+i = 0
+while i < 2 :
+    j = 0
+    while j < 2 :
+        print(C[i][j])
+        j = j + 1
+    end
+    i = i + 1
+end

@@ -142,9 +142,19 @@ class ControlBus:
         @staticmethod
         def read_memory():
             """Get bitarray from memory and store it in Data bus"""
-            word: np.uint64 = Memory.read(
-                NC.bitarray2natural(DirectionBus.read())
-            )
+            addr = NC.bitarray2natural(DirectionBus.read())
+            # If reading from E/S and no input available, signal that input is needed
+            try:
+                from controller import terminal as _term
+                if constants.E_S_RANGE[0] <= addr <= constants.E_S_RANGE[1] and not _term.has_input():
+                    raise _term.InputNeeded()
+            except Exception as e:
+                # If the exception is InputNeeded, re-raise to be handled upstream
+                if type(e).__name__ == 'InputNeeded':
+                    raise
+                # otherwise ignore and continue to read memory normally
+                pass
+            word: np.uint64 = Memory.read(addr)
             word: bitarray = NC.natural2bitarray(int(word), bits=constants.WORDS_SIZE_BITS)
             DataBus.write(word)
 

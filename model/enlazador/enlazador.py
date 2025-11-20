@@ -45,8 +45,30 @@ class Enlazador:
                 f"el área del código"
             )
 
-        for idx, code_line in enumerate(Enlazador.MACHINE_CODE_RELOC):
-            # Creaer conteo de bits para verificar que sea de tamaño WORD
+        lines = Enlazador.MACHINE_CODE_RELOC
+
+        # Quick bounds check: ensure the whole image fits in the code area
+        image_len = len(lines)
+        if address + image_len - 1 > constants.CODE_RANGE[1]:
+            raise ValueError(
+                f"El código no cabe en el área de código: "
+                f"direcciones {address}..{address+image_len-1} exceden {constants.CODE_RANGE[1]}"
+            )
+
+        # Detect leading zero-words in the image to warn about .data placed before code
+        zero_word = '0' * constants.WORDS_SIZE_BITS
+        leading_zeros = 0
+        for ln in lines:
+            if ln == zero_word:
+                leading_zeros += 1
+            else:
+                break
+        if leading_zeros > 0:
+            # leading zeros detected; no debug printing in production
+            pass
+
+        for idx, code_line in enumerate(lines):
+            # Crear conteo de bits para verificar que sea de tamaño WORD
             bits_count = 0
             # Contar 0 y 1
             bits_count += code_line.count('0') + code_line.count('1')
@@ -74,7 +96,7 @@ class Enlazador:
                     format(direccion_relocalizada, '024b'))
 
                 # Reemplazar la subcadena completa "{...}" por el binario
-                code_line:str = code_line.replace(
+                code_line: str = code_line.replace(
                     f'{{{natural_str}}}', direccion_bin)
 
                 # Contar bits del nuevo binario insertado
@@ -87,7 +109,12 @@ class Enlazador:
             instruction_bin: bitarray = bitarray(code_line)
 
             # Cargar la instrucción en memoria
-            bus.DirectionBus.write(NC.natural2bitarray(address+idx, 24))
+            target_addr = address + idx
+            bus.DirectionBus.write(NC.natural2bitarray(target_addr, 24))
             bus.ControlBus.write(bus.ControlBus.WRITE_MEMORY_BIN)
             bus.DataBus.write(instruction_bin)
             bus.action()
+
+        # Summary print for debugging large images
+        first_nonzero = next((i for i, l in enumerate(lines) if l != zero_word), None)
+          # load summary (suppressed debug print)

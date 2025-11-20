@@ -16,7 +16,14 @@ This is a simplified example for the course.
 """
 import sys
 import argparse
+import json
 from pathlib import Path
+
+# try to import assembler opcode table to detect GUARD opcode pattern for metadata
+try:
+    from .assembler_from_as import MNEMONIC_TABLE
+except Exception:
+    MNEMONIC_TABLE = None
 
 
 def parse_obj(path: Path):
@@ -90,6 +97,32 @@ def main():
     out = Path(args.output)
     out.write_text('\n'.join(all_insts) + '\n')
     print(f"Wrote {len(all_insts)} words to {out}")
+
+    # Attempt to detect a GUARD memory result address in the final image
+    meta = {}
+    try:
+        if MNEMONIC_TABLE and 'GUARD' in MNEMONIC_TABLE:
+            guard_bits = MNEMONIC_TABLE['GUARD'][2]
+            # GUARD instructions have opcode prefix `guard_bits` and end with 24-bit address
+            for inst in all_insts:
+                if inst.startswith(guard_bits):
+                    # memory address is the last 24 bits
+                    addr_bits = inst[-24:]
+                    addr = int(addr_bits, 2)
+                    meta['result_addr'] = addr
+                    break
+    except Exception:
+        # non-fatal: metadata detection best-effort
+        pass
+
+    # write metadata file next to the output image if we found anything
+    if meta:
+        try:
+            meta_path = out.with_suffix('.meta.json')
+            meta_path.write_text(json.dumps(meta, indent=2), encoding='utf-8')
+            print(f"Wrote metadata to {meta_path}")
+        except Exception:
+            pass
 
 if __name__ == '__main__':
     main()

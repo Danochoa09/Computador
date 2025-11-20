@@ -2,7 +2,12 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext, filedialog
 
 from controller.computer import Action, Data
-from tools.flex_pipeline import pipeline_from_text
+from model.compilador.flex_pipeline import pipeline_from_text
+from pathlib import Path
+import json
+from model.compilador.parser_spl import compile_high_level
+from model.ensamblador.assembler_from_as import assemble_text
+from model.enlazador.enlazador import Enlazador
 
 
 # Helper: detect GUARD opcode prefix from assembler tables
@@ -15,7 +20,7 @@ def _detect_guard_address_from_binary_lines(codigo_lines):
     24 bits of the instruction hold the memory address (per encoding).
     """
     try:
-        from tools.assembler_from_as import MNEMONIC_TABLE
+        from model.ensamblador.assembler_from_as import MNEMONIC_TABLE
     except Exception:
         return None
 
@@ -36,6 +41,7 @@ def _detect_guard_address_from_binary_lines(codigo_lines):
                 return None
     return None
 import numpy as np
+import threading
 from model.procesador.memory import Memory
 
 
@@ -72,16 +78,54 @@ class SimuladorComputador(tk.Tk):
         self._crear_area_codigo()
         self._crear_area_memoria()
         self._crear_area_ejecucion()
+        # Register a terminal write callback so Memory writes to E/S appear here
+        try:
+            from controller import terminal as _term
+            def _term_cb(addr, text):
+                try:
+                    # Robust insertion: rebuild the widget content by finding the
+                    # last prompt "> ", inserting the new program text just before
+                    # it and preserving any user-typed text after the prompt.
+                    self.terminal_output.configure(state='normal')
+                    full = self.terminal_output.get("1.0", "end-1c")
+                    # Find last occurrence of prompt marker
+                    idx = full.rfind("> ")
+                    if idx == -1:
+                        before = full
+                        user_text = ""
+                    else:
+                        before = full[:idx]
+                        user_text = full[idx+2:]
+                    # Rebuild content: if the program text already ends with a
+                    # newline, don't add another one before the prompt. This
+                    # preserves explicit '\n' from the program and avoids
+                    # producing extra blank lines.
+                    if text.endswith("\n"):
+                        new = before + text + "> " + user_text
+                    else:
+                        new = before + text + "\n> " + user_text
+                    # Replace whole widget content in a single operation
+                    self.terminal_output.delete("1.0", tk.END)
+                    self.terminal_output.insert(tk.END, new)
+                    # Reposition the input mark at the end of the prompt
+                    self.terminal_output.mark_set("input_start", "end-1c")
+                    self.terminal_output.mark_gravity("input_start", tk.LEFT)
+                    self.terminal_output.see(tk.END)
+                except Exception:
+                    pass
+            _term.register_write_callback(_term_cb)
+        except Exception:
+            pass
 
     def _crear_area_memoria(self):
         frame = ttk.LabelFrame(self.scroll_frame, text="Memoria", padding=10)
-        frame.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
+        frame.grid(row=0, column=2, padx=0, pady=10, sticky="nsw")
 
         # Controls: start address and count and mode
         ctrl_frame = tk.Frame(frame)
         ctrl_frame.pack(anchor="w")
 
-        ttk.Label(ctrl_frame, text="Inicio (dec):").pack(side="left")
+        ttk.Label(ctrl_frame, text="Inicio:").pack(side="left")
         self.mem_start = ttk.Entry(ctrl_frame, width=8)
         self.mem_start.pack(side="left", padx=4)
 
@@ -95,17 +139,20 @@ class SimuladorComputador(tk.Tk):
         self.mem_mode.pack(side="left", padx=4)
 
         ttk.Button(ctrl_frame, text="Mostrar", command=self._mostrar_memoria).pack(side="left", padx=4)
-        ttk.Button(ctrl_frame, text="Guardar cambios", command=self._guardar_memoria).pack(side="left", padx=4)
 
         # Text area to show/edit memory
         self.mem_text = scrolledtext.ScrolledText(frame, width=40, height=20)
         self.mem_text.pack(pady=6)
 
-        ttk.Label(frame, text="Formato de cada línea: dirección:value (p. ej. 1028:0xFF)").pack(anchor="w")
+        # format label and move "Guardar cambios" button next to it
+        format_frame = tk.Frame(frame)
+        format_frame.pack(anchor="w", fill="x")
+        ttk.Label(format_frame, text="Formato de cada línea: dirección:value (p. ej. 1028:0xFF)").pack(side="left")
+        ttk.Button(format_frame, text="Guardar cambios", command=self._guardar_memoria).pack(side="left", padx=8)
 
         # --- Panel de Registros debajo de Memoria ---
         regs_frame = ttk.LabelFrame(self.scroll_frame, text="Registros", padding=10)
-        regs_frame.grid(row=1, column=2, padx=10, pady=0, sticky="nsew")
+        regs_frame.grid(row=0, column=3, padx=10, pady=10, sticky="nsw")
 
         ctrl_regs = tk.Frame(regs_frame)
         ctrl_regs.pack(anchor="w")
@@ -118,10 +165,30 @@ class SimuladorComputador(tk.Tk):
         ttk.Button(ctrl_regs, text="Mostrar Registros", command=self._mostrar_registros).pack(side="left", padx=4)
 
         # Text area to show registers (read-only)
-        self.regs_text = scrolledtext.ScrolledText(regs_frame, width=40, height=10)
+        self.regs_text = scrolledtext.ScrolledText(regs_frame, width=28, height=20)
         self.regs_text.pack(pady=6)
         # Make it read-only by default
         self.regs_text.configure(state='disabled')
+
+        # --- Terminal I/O debajo de Memoria y Registros ---
+        term_frame = ttk.LabelFrame(self.scroll_frame, text="Terminal I/O", padding=10)
+        term_frame.grid(row=1, column=2, columnspan=2, padx=0, pady=10, sticky="nsew")
+
+        # Terminal area (single widget for output and input)
+        self.terminal_output = scrolledtext.ScrolledText(term_frame, width=80, height=8)
+        self.terminal_output.pack(fill="both", expand=True, pady=(0, 6))
+        # Allow the user to type directly. We'll manage the prompt and Enter handling.
+        self.terminal_output.configure(state='normal')
+        # Insert initial prompt
+        self.terminal_output.insert(tk.END, "> ")
+        # Remember a mark for where user input starts (after the prompt)
+        self.terminal_output.mark_set("input_start", "end-1c")
+        self.terminal_output.mark_gravity("input_start", tk.LEFT)
+
+        # Bind Enter to capture the input typed on the last line
+        self.terminal_output.bind('<Return>', self._terminal_send_from_text)
+        # Bind Ctrl+L to clear (convenience)
+        self.terminal_output.bind('<Control-l>', lambda e: (self._terminal_clear(), 'break'))
 
     def _mostrar_memoria(self):
         try:
@@ -184,6 +251,76 @@ class SimuladorComputador(tk.Tk):
             self.output_ejecucion.insert(tk.END, f"Errores al guardar memoria: {msg}\n")
         else:
             self.output_ejecucion.insert(tk.END, "Memoria guardada correctamente.\n")
+
+    def _terminal_send(self):
+        """Send the content of the terminal entry to the terminal output.
+        This is a simple local echo. Integration with the E/S model can be added
+        later if needed.
+        """
+        # Backwards-compatible wrapper: if someone calls the old send method,
+        # delegate to the new scrolledtext handler.
+        try:
+            self._terminal_send_from_text()
+        except Exception:
+            pass
+
+    def _terminal_clear(self):
+        """Clear the terminal output area."""
+        try:
+            self.terminal_output.configure(state='normal')
+            self.terminal_output.delete(1.0, tk.END)
+            # Insert fresh prompt after clearing
+            self.terminal_output.insert(tk.END, "> ")
+            self.terminal_output.mark_set("input_start", "end-1c")
+            self.terminal_output.mark_gravity("input_start", tk.LEFT)
+            # Keep it editable so user can type
+            self.terminal_output.configure(state='normal')
+        except Exception as e:
+            try:
+                self.output_ejecucion.insert(tk.END, f"Error clearing terminal: {e}\n")
+            except Exception:
+                pass
+
+    def _terminal_send_from_text(self, event=None):
+        """Handle Enter pressed inside the terminal scrolledtext.
+        Capture the last line (user input after the prompt), process it,
+        and append a new prompt. Returns the Tk binding break to stop the
+        default newline insertion.
+        """
+        try:
+            # Get the last line typed by the user
+            content = self.terminal_output.get("1.0", "end-1c")
+            lines = content.splitlines()
+            last_line = lines[-1] if lines else ""
+            if last_line.startswith("> "):
+                input_text = last_line[2:]
+            else:
+                input_text = last_line
+
+            # Simple processing: for now, echo to the execution output area
+            # and leave the typed input as-is in the terminal area.
+            if input_text.strip():
+                try:
+                    self.output_ejecucion.insert(tk.END, f"Terminal input: {input_text}\n")
+                    # Send input to the emulator input queue so CPU reads can consume it
+                    try:
+                        from controller import terminal as _term
+                        _term.push_input(input_text)
+                    except Exception:
+                        pass
+                except Exception:
+                    pass
+
+            # Append a newline and a new prompt, move caret to end
+            self.terminal_output.insert(tk.END, "\n> ")
+            self.terminal_output.see(tk.END)
+        except Exception as e:
+            try:
+                self.output_ejecucion.insert(tk.END, f"Error terminal send_from_text: {e}\n")
+            except Exception:
+                pass
+        # Prevent Tk from inserting an extra newline
+        return 'break'
 
     def _mostrar_registros(self):
         """Muestra los 32 registros (R0..R31) en el area de Registros usando el formato seleccionado."""
@@ -254,6 +391,14 @@ class SimuladorComputador(tk.Tk):
         self.btn_convertir = ttk.Button(
             btn_frame, text="Convertir", command=self._convertir_flex)
         self.btn_convertir.pack(side="left", padx=5)
+
+        # Open separate compilation window
+        ttk.Button(btn_frame, text="Abrir Ventana de Compilación", command=self._abrir_ventana_compilacion).pack(side="left", padx=5)
+
+    def _abrir_ventana_compilacion(self):
+        win = VentanaCompilacion(self)
+        win.transient(self)
+        win.grab_set()
 
     def _cargar_archivo(self):
         filepath = filedialog.askopenfilename(
@@ -382,6 +527,9 @@ class SimuladorComputador(tk.Tk):
                 # If the editor contains non-binary source (SPL/asm), run the pipeline first
                 codigo_raw = self.codigo_text.get(1.0, tk.END)
                 only_bits = all(c in '01\n\r\t ' for c in codigo_raw)
+                image_path = None
+                meta = {}
+                insts = None
                 if not only_bits:
                     try:
                         insts, image_path = pipeline_from_text(codigo_raw)
@@ -389,32 +537,99 @@ class SimuladorComputador(tk.Tk):
                         # Replace editor with binary image
                         self.codigo_text.delete(1.0, tk.END)
                         self.codigo_text.insert(tk.END, bin_text)
-                        # Load into memory at direccion_int
+                        # Load into memory at direccion_int (base address)
                         Action.load_machine_code(bin_text, direccion_int)
+                        # Read meta for entry_index/result_addr if present
+                        try:
+                            import json
+                            from pathlib import Path as _P
+                            meta_path = _P(image_path).with_suffix('.meta.json')
+                            if meta_path.exists():
+                                meta = json.loads(meta_path.read_text(encoding='utf-8'))
+                        except Exception:
+                            meta = {}
                     except Exception as e:
                         self.output_ejecucion.insert(tk.END, f"Error en pipeline: {e}\n")
                         return
+                else:
+                    # Binary already; ensure it's loaded if user edited directly
+                    try:
+                        Action.load_machine_code(codigo_raw, direccion_int)
+                        insts = [l.strip() for l in codigo_raw.strip().splitlines() if l.strip()]
+                    except Exception:
+                        pass
 
-                # Execute the program from the given start address
-                Action.execute_progam(direccion_int)
-                self.output_ejecucion.insert(
-                    tk.END, f"Programa ejecutado desde dirección {direccion}.\n")
-
-                # Detectar la dirección de resultado desde el código binario cargado
-                codigo = self.codigo_text.get(1.0, tk.END).strip().splitlines()
-                direccion_resultado = _detect_guard_address_from_binary_lines(codigo)
-                if direccion_resultado is None:
-                    direccion_resultado = 131072  # fallback
-
-                resultado = Data.Memory_D.get_memory_content(direccion_resultado, "hex")
-                self.output_ejecucion.insert(
-                    tk.END, f"Resultado guardado en memoria[{direccion_resultado}]: {resultado}\n")
-
-                # Refresh registers view after program execution
+                # Determine execution start address using meta entry_index if available; fallback to first non-zero line
+                start_exec_addr = direccion_int
                 try:
-                    self._mostrar_registros()
+                    if isinstance(meta, dict) and 'entry_index' in meta:
+                        entry_index = int(meta['entry_index'])
+                        start_exec_addr = direccion_int + entry_index
+                    else:
+                        if insts:
+                            zero_word = '0' * 64
+                            first_nonzero = next((i for i, l in enumerate(insts) if l != zero_word), 0)
+                            start_exec_addr = direccion_int + first_nonzero
                 except Exception:
-                    pass
+                    start_exec_addr = direccion_int
+                # Inform user if start adjusted
+                if start_exec_addr != direccion_int:
+                    self.output_ejecucion.insert(tk.END, f"Dirección base {hex(direccion_int)} ajustada a inicio de código {hex(start_exec_addr)}.\n")
+                    try:
+                        # Actualizar campo de inicio con nueva dirección efectiva (sin '0x')
+                        self.dir_inicio.delete(0, tk.END)
+                        self.dir_inicio.insert(0, format(start_exec_addr, 'x'))
+                    except Exception:
+                        pass
+
+                # Run execution in a background thread so the GUI stays responsive
+                def _run_and_report():
+                    try:
+                        Action.execute_progam(start_exec_addr)
+                        # Prepare result detection and UI updates on main thread
+                        def _finish():
+                            self.output_ejecucion.insert(tk.END, f"Programa ejecutado desde dirección {hex(start_exec_addr)}.\n")
+
+                            # Prefer metadata produced by the pipeline (.meta.json) to detect
+                            # the result address; if not available, fall back to binary scan.
+                            direccion_resultado = None
+                            try:
+                                if image_path:
+                                    img_path = Path(image_path)
+                                    meta_path = img_path.with_suffix('.meta.json')
+                                    if meta_path.exists():
+                                        meta2 = json.loads(meta_path.read_text(encoding='utf-8'))
+                                        direccion_resultado = meta2.get('result_addr')
+                            except Exception:
+                                direccion_resultado = None
+
+                            if direccion_resultado is None:
+                                codigo = self.codigo_text.get(1.0, tk.END).strip().splitlines()
+                                direccion_resultado = _detect_guard_address_from_binary_lines(codigo)
+                                if direccion_resultado is None:
+                                    direccion_resultado = 131072
+
+                            try:
+                                resultado = Data.Memory_D.get_memory_content(direccion_resultado, "hex")
+                            except Exception:
+                                resultado = "<no disponible>"
+
+                            self.output_ejecucion.insert(
+                                tk.END, f"Resultado guardado en memoria[{direccion_resultado}]: {resultado}\n")
+
+                            # Refresh registers view after program execution
+                            try:
+                                self._mostrar_registros()
+                            except Exception:
+                                pass
+
+                        self.output_ejecucion.after(0, _finish)
+                    except Exception as e:
+                        self.output_ejecucion.after(0, lambda: self.output_ejecucion.insert(tk.END, f"Error en ejecución: {e}\n"))
+
+                t = threading.Thread(target=_run_and_report, daemon=True)
+                t.start()
+                self.output_ejecucion.insert(tk.END, "Ejecución iniciada en segundo plano...\n")
 
             except Exception as e:
                 self.output_ejecucion.insert(tk.END, f"Error: {e}\n")
@@ -478,11 +693,20 @@ class SimuladorComputador(tk.Tk):
 
             # Si la instrucción fue PARA, detectar dirección de resultado y mostrar valor
             if did_para or not Action.is_stepping():
-                # Detectar la dirección de resultado desde el código binario cargado
-                codigo = self.codigo_text.get(1.0, tk.END).strip().splitlines()
-                direccion_resultado = _detect_guard_address_from_binary_lines(codigo)
+                # Try to read pipeline metadata file next to the image if available
+                direccion_resultado = None
+                try:
+                    # attempt to find the image path by reading the current editor
+                    # (pipeline writes the .i file and the UI replaced editor with binary)
+                    # We don't have image_path here, so fall back to scanning binaries
+                    pass
+                except Exception:
+                    pass
                 if direccion_resultado is None:
-                    direccion_resultado = 131072  # fallback para compatibilidad
+                    codigo = self.codigo_text.get(1.0, tk.END).strip().splitlines()
+                    direccion_resultado = _detect_guard_address_from_binary_lines(codigo)
+                    if direccion_resultado is None:
+                        direccion_resultado = 131072  # fallback para compatibilidad
 
                 resultado = Data.Memory_D.get_memory_content(direccion_resultado, "hex")
                 self.output_ejecucion.insert(
@@ -505,3 +729,177 @@ class SimuladorComputador(tk.Tk):
 if __name__ == "__main__":
     app = SimuladorComputador()
     app.mainloop()
+
+# --- Nueva ventana de compilación/ensamblado ---
+class VentanaCompilacion(tk.Toplevel):
+    def __init__(self, master):
+        super().__init__(master)
+        self.title("Compilación y Ensamblado")
+        self.geometry("1100x600")
+        self._build_ui()
+
+    def _build_ui(self):
+        # Layout: three columns: Relocalizable | Assembler | Alto Nivel
+        container = tk.Frame(self)
+        container.pack(fill="both", expand=True, padx=8, pady=8)
+
+        # Left: Código relocalizable
+        left = ttk.LabelFrame(container, text="CÓDIGO RELOCALIZABLE", padding=8)
+        left.grid(row=0, column=0, padx=6, pady=6, sticky="nsew")
+        container.grid_columnconfigure(0, weight=1)
+        container.grid_columnconfigure(1, weight=1)
+        container.grid_columnconfigure(2, weight=1)
+        container.grid_rowconfigure(0, weight=1)
+
+        addr_row = tk.Frame(left)
+        addr_row.pack(fill="x")
+        ttk.Label(addr_row, text="Dirección carga (hex):").pack(side="left")
+        self.addr_entry = ttk.Entry(addr_row, width=12)
+        self.addr_entry.insert(0, "0")
+        self.addr_entry.pack(side="left", padx=6)
+        ttk.Button(addr_row, text="Enlazar Cargar", command=self._enlazar_cargar).pack(side="left", padx=6)
+
+        self.txt_reloc = scrolledtext.ScrolledText(left, width=40, height=25)
+        self.txt_reloc.pack(fill="both", expand=True, pady=(6,0))
+
+        # Middle: Código Assembler
+        mid = ttk.LabelFrame(container, text="CÓDIGO ASSEMBLER", padding=8)
+        btn_mid = tk.Frame(mid)
+        btn_mid.pack(fill="x")
+        ttk.Button(btn_mid, text="Ensamblar", command=self._ensamblar).pack(side="left", padx=6, pady=6)
+        ttk.Button(btn_mid, text="Tokens", command=self._mostrar_tokens).pack(side="left", padx=6, pady=6)
+        mid.grid(row=0, column=1, padx=6, pady=6, sticky="nsew")
+        self.txt_asm = scrolledtext.ScrolledText(mid, width=40, height=25)
+        self.txt_asm.pack(fill="both", expand=True)
+
+        # Right: Código Alto Nivel
+        right = ttk.LabelFrame(container, text="CÓDIGO ALTO NIVEL", padding=8)
+        right.grid(row=0, column=2, padx=6, pady=6, sticky="nsew")
+        top_row = tk.Frame(right)
+        top_row.pack(fill="x")
+        ttk.Button(top_row, text="Cargar Archivo", command=self._cargar_archivo_high).pack(side="left")
+        ttk.Button(top_row, text="Compilar", command=self._compilar).pack(side="left", padx=6)
+        self.txt_high = scrolledtext.ScrolledText(right, width=40, height=25)
+        self.txt_high.pack(fill="both", expand=True)
+
+    # Actions
+    def _cargar_archivo_high(self):
+        path = filedialog.askopenfilename(
+            title="Seleccionar código alto nivel",
+            filetypes=(("SPL/ASM", "*.spl;*.s;*.as"), ("Todos", "*.*")),
+        )
+        if not path:
+            return
+        try:
+            txt = Path(path).read_text(encoding="utf-8")
+            self.txt_high.delete("1.0", tk.END)
+            self.txt_high.insert(tk.END, txt)
+        except Exception as e:
+            tk.messagebox.showerror("Error", f"No se pudo cargar: {e}")
+
+    def _compilar(self):
+        src = self.txt_high.get("1.0", tk.END)
+        if not src.strip():
+            tk.messagebox.showwarning("Atención", "No hay código para compilar.")
+            return
+        try:
+            asm = compile_high_level(src)
+            self.txt_asm.delete("1.0", tk.END)
+            self.txt_asm.insert(tk.END, asm)
+        except Exception as e:
+            tk.messagebox.showerror("Error al compilar", f"{e}")
+
+    def _ensamblar(self):
+        asm = self.txt_asm.get("1.0", tk.END)
+        if not asm.strip():
+            tk.messagebox.showwarning("Atención", "No hay código assembler para ensamblar.")
+            return
+        try:
+            maybe = assemble_text(asm)
+            if isinstance(maybe, tuple) and len(maybe) == 2:
+                insts, meta = maybe
+            else:
+                insts = maybe
+                meta = {}
+            self.txt_reloc.delete("1.0", tk.END)
+            self.txt_reloc.insert(tk.END, "\n".join(insts) + "\n")
+            if meta:
+                self.txt_reloc.insert(tk.END, f"\n# META: {meta}\n")
+        except Exception as e:
+            tk.messagebox.showerror("Error al ensamblar", f"{e}")
+
+    def _enlazar_cargar(self):
+        bits = self.txt_reloc.get("1.0", tk.END).strip().splitlines()
+        if not bits:
+            tk.messagebox.showwarning("Atención", "No hay código relocalizable para cargar.")
+            return
+        addr_s = self.addr_entry.get().strip()
+        if not addr_s:
+            addr_s = "0"
+        try:
+            addr = int(addr_s, 16)
+        except Exception:
+            tk.messagebox.showerror("Error", "Dirección inválida (use hex).")
+            return
+
+        try:
+            Enlazador.set_machine_code("\n".join(bits))
+            Enlazador.link_load_machine_code(addr)
+            tk.messagebox.showinfo("Éxito", f"Código cargado en memoria desde {addr_s}.")
+        except Exception as e:
+            tk.messagebox.showerror("Error al cargar", f"{e}")
+
+    def _mostrar_tokens(self):
+        asm = self.txt_asm.get("1.0", tk.END)
+        if not asm.strip():
+            tk.messagebox.showwarning("Atención", "No hay código assembler para tokenizar.")
+            return
+        try:
+            tokens = self._tokenize_asm(asm)
+        except Exception as e:
+            tk.messagebox.showerror("Error", f"No se pudo tokenizar: {e}")
+            return
+
+        win = tk.Toplevel(self)
+        win.title("Tokens - ASM")
+        txt = scrolledtext.ScrolledText(win, width=80, height=30)
+        txt.pack(fill="both", expand=True)
+        for kind, val in tokens:
+            txt.insert(tk.END, f"{kind}\t{val}\n")
+        txt.configure(state='disabled')
+
+    def _tokenize_asm(self, text):
+        import re
+
+        token_spec = [
+            ('COMMENT', r';[^\n]*'),
+            ('HEX', r'0x[0-9A-Fa-f]+'),
+            ('BIN', r'0b[01]+'),
+            ('NUMBER', r'\d+'),
+            ('IDENT', r'[A-Za-z_][A-Za-z0-9_]*'),
+            ('COMMA', r','),
+            ('COLON', r':'),
+            ('LPAREN', r'\('),
+            ('RPAREN', r'\)'),
+            ('LBRACKET', r'\['),
+            ('RBRACKET', r'\]'),
+            ('PLUS', r'\+'),
+            ('MINUS', r'-'),
+            ('SKIP', r'[ \t]+'),
+            ('NEWLINE', r'\n+'),
+            ('MISMATCH', r'.'),
+        ]
+
+        tok_regex = '|'.join(f'(?P<{name}>{pattern})' for name, pattern in token_spec)
+        get_token = re.compile(tok_regex).finditer
+        tokens = []
+        for mo in get_token(text):
+            kind = mo.lastgroup
+            value = mo.group()
+            if kind in ('SKIP', 'NEWLINE'):
+                continue
+            if kind == 'COMMENT':
+                tokens.append((kind, value.strip()))
+                continue
+            tokens.append((kind, value))
+        return tokens

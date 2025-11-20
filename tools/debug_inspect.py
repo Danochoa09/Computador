@@ -3,8 +3,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import json
-from tools.spl_to_asm import compile_euclides
-from tools.assembler_from_as import assemble_text
+from model.compilador.spl_to_asm import compile_euclides
+from model.ensamblador.assembler_from_as import assemble_text
 
 s = open('Ejemplos/SPL/euclides_high.spl').read()
 print('--- Source ---')

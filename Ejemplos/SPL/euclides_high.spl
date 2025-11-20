@@ -1,6 +1,6 @@
-; Euclides en lenguaje de alto nivel
-; Variables: a, b
-; Lee a desde M[375], b desde M[1535], calcula MCD y guarda en M[131072]
+# Euclides en lenguaje de alto nivel
+# Variables: a, b
+# Lee a desde M[375], b desde M[1535], calcula MCD y guarda en M[131072]
 
 a = M[375]
 b = M[1535]

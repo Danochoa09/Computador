@@ -1,0 +1,5 @@
+print("Introduce texto:")
+entrada = input()
+print("Has introducido:")
+print(entrada)
+

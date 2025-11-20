@@ -3,7 +3,8 @@
     "PROCRASTINA", "VUELVE", "PARA"
   ],
   "54": [
-    "SUMA", "RESTA", "MULT", "DIVI", "AND", "OR", "XOR", "COMP", "COPIA"
+    "SUMA", "RESTA", "MULT", "DIVI", "AND", "OR", "XOR", "COMP", "COPIA",
+    "CARGAIND", "GUARDIND"
   ],
   "59": [
     "NOT", "LIMP", "INCRE", "DECRE", "APILA", "DESAPILA"

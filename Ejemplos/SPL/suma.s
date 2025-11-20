@@ -1,5 +1,5 @@
-; Suma simple - toma 2 valores de memoria y guarda la suma
-; M[100] = a, M[101] = b, resultado se guarda en M[131072]
+# Suma simple - toma 2 valores de memoria y guarda la suma
+# M[100] = a, M[101] = b, resultado se guarda en M[131072]
 
 CARGA R4, M[100]   ; cargar a en R4
 CARGA R5, M[101]   ; cargar b en R5
