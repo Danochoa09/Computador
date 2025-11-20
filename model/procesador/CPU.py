@@ -328,7 +328,12 @@ class CU:
         # Convertir a string la cadena de bits
         instr_str = str(CU.instruction_word.to01())
 
-        for length_i, opcodes_list in opcodes_dict.items():
+        # Check lengths in descending order to avoid prefix collisions
+        # (e.g., APILA's 59-bit opcode starts with CARGAIND's 54-bit prefix)
+        for length_i in ['64', '59', '54', '40', '35', '27']:
+            if length_i not in opcodes_dict:
+                continue
+            opcodes_list = opcodes_dict[length_i]
             for idx, opcode in enumerate(opcodes_list):
                 if instr_str.startswith(opcode):
                     length = length_i

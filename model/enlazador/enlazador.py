@@ -63,9 +63,6 @@ class Enlazador:
                 leading_zeros += 1
             else:
                 break
-        if leading_zeros > 0:
-            # leading zeros detected; no debug printing in production
-            pass
 
         for idx, code_line in enumerate(lines):
             # Crear conteo de bits para verificar que sea de tamaño WORD
@@ -116,5 +113,6 @@ class Enlazador:
             bus.action()
 
         # Summary print for debugging large images
-        first_nonzero = next((i for i, l in enumerate(lines) if l != zero_word), None)
-          # load summary (suppressed debug print)
+        # first_nonzero = next((i for i, l in enumerate(lines) if l != zero_word), None)
+        # print(f"[enlazador] Loaded {image_len} words at {address}..{address+image_len-1}. "
+        #       f"First non-zero at index {first_nonzero}.")

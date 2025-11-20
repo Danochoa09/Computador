@@ -33,7 +33,7 @@ i = 0
 while i < f1 :
     j = 0
     while j < c1 :
-        print("A element [", i, "][", j, "]: ")
+        print("A element [", i + 1, "][", j + 1, "]: ")
         A[i][j] = input()
         j = j + 1
     end
@@ -45,7 +45,7 @@ i = 0
 while i < f2 :
     j = 0
     while j < c2 :
-        print("B element [", i, "][", j, "]: ")
+        print("B element [", i + 1, "][", j + 1, "]: ")
         B[i][j] = input()
         j = j + 1
     end

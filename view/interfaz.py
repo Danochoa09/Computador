@@ -610,7 +610,7 @@ class SimuladorComputador(tk.Tk):
                                     direccion_resultado = 131072
 
                             try:
-                                resultado = Data.Memory_D.get_memory_content(direccion_resultado, "hex")
+                                resultado = Data.Memory_D.get_memory_content(direccion_resultado, "decimal")
                             except Exception:
                                 resultado = "<no disponible>"
 
@@ -625,7 +625,8 @@ class SimuladorComputador(tk.Tk):
 
                         self.output_ejecucion.after(0, _finish)
                     except Exception as e:
-                        self.output_ejecucion.after(0, lambda: self.output_ejecucion.insert(tk.END, f"Error en ejecución: {e}\n"))
+                        error_msg = f"Error en ejecución: {e}\n"
+                        self.output_ejecucion.after(0, lambda msg=error_msg: self.output_ejecucion.insert(tk.END, msg))
 
                 t = threading.Thread(target=_run_and_report, daemon=True)
                 t.start()
@@ -871,8 +872,21 @@ class VentanaCompilacion(tk.Toplevel):
     def _tokenize_asm(self, text):
         import re
 
+        # ISA mnemonics should be marked as RESEV
+        isa_mnemonics = {
+            'procrastina', 'vuelve', 'suma', 'resta', 'mult', 'divi',
+            'copia', 'comp', 'cargaind', 'guardind', 'limp', 'incre', 
+            'decre', 'apila', 'desapila',
+            'carga', 'guard', 'siregcero', 'siregncero', 'icarga', 
+            'isuma', 'iresta', 'imult', 'idivi', 'iand', 'ior', 'ixor', 
+            'icomp', 'salta', 'llama', 'sicero', 'sincero', 'sipos', 
+            'sineg', 'sioverfl', 'simayor', 'simenor', 'interrup', 'para'
+        }
+
         token_spec = [
             ('COMMENT', r';[^\n]*'),
+            ('MEMREF', r'M\[(0x[0-9A-Fa-f]+|0b[01]+|\d+)\]'),
+            ('REGISTER', r'R\d+'),
             ('HEX', r'0x[0-9A-Fa-f]+'),
             ('BIN', r'0b[01]+'),
             ('NUMBER', r'\d+'),
@@ -901,5 +915,9 @@ class VentanaCompilacion(tk.Toplevel):
             if kind == 'COMMENT':
                 tokens.append((kind, value.strip()))
                 continue
-            tokens.append((kind, value))
+            # Check if IDENT is actually an ISA mnemonic
+            if kind == 'IDENT' and value.lower() in isa_mnemonics:
+                tokens.append(('RESEV', value))
+            else:
+                tokens.append((kind, value))
         return tokens

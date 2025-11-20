@@ -61,6 +61,8 @@ tokens = (
     'ASSIGN_OP',
     'AND_SYM',
     'OR_SYM',
+    'RESEV',
+    'PARA',
 )
 
 # Simple tokens
@@ -74,9 +76,28 @@ t_RBRACE = r"\}"
 t_SEMI = r";"
 t_DOT = r"\."
 
+# Order matters in PLY! More specific patterns must come first.
+# REGISTER and MEMREF must be before NAME to avoid being matched as NAME.
+
 def t_DIRECTIVE(t):
     r"^\.[A-Za-z_][A-Za-z_0-9]*"
     t.value = t.value
+    return t
+
+def t_MEMREF(t):
+    r"M\[(0x[0-9A-Fa-f]+|0b[01]+|[0-9]+)\]"
+    inner = t.value[2:-1]
+    if inner.startswith('0x') or inner.startswith('0X'):
+        t.value = int(inner, 16)
+    elif inner.startswith('0b') or inner.startswith('0B'):
+        t.value = int(inner, 2)
+    else:
+        t.value = int(inner, 10)
+    return t
+
+def t_REGISTER(t):
+    r"R[0-9]+"
+    t.value = int(t.value[1:])
     return t
 
 def t_LABEL(t):
@@ -95,22 +116,6 @@ def t_LABEL(t):
         t.type = 'END'; t.value = low
     else:
         t.type = 'NAME'; t.value = val
-    return t
-
-def t_MEMREF(t):
-    r"M\[(0x[0-9A-Fa-f]+|0b[01]+|[0-9]+)\]"
-    inner = t.value[2:-1]
-    if inner.startswith('0x') or inner.startswith('0X'):
-        t.value = int(inner, 16)
-    elif inner.startswith('0b') or inner.startswith('0B'):
-        t.value = int(inner, 2)
-    else:
-        t.value = int(inner, 10)
-    return t
-
-def t_REGISTER(t):
-    r"R[0-9]+"
-    t.value = int(t.value[1:])
     return t
 
 def t_NUMBER(t):
@@ -153,12 +158,35 @@ reserved = {
 reserved.update({'type': 'TYPE'})
 reserved.update({'print': 'PRINT', 'input': 'INPUT'})
 reserved.update({'begin': 'BEGIN', 'end': 'END'})
+reserved.update({'para': 'PARA'})
+
+# ISA mnemonics from ISA.json - mark as RESEV
+isa_mnemonics = {
+    # 64-bit
+    'procrastina': 'RESEV', 'vuelve': 'RESEV',
+    # 54-bit
+    'suma': 'RESEV', 'resta': 'RESEV', 'mult': 'RESEV', 'divi': 'RESEV',
+    'copia': 'RESEV', 'comp': 'RESEV', 'cargaind': 'RESEV', 'guardind': 'RESEV',
+    # 59-bit
+    'limp': 'RESEV', 'incre': 'RESEV', 'decre': 'RESEV', 'apila': 'RESEV', 'desapila': 'RESEV',
+    # 35-bit
+    'carga': 'RESEV', 'guard': 'RESEV', 'siregcero': 'RESEV', 'siregncero': 'RESEV',
+    # 27-bit
+    'icarga': 'RESEV', 'isuma': 'RESEV', 'iresta': 'RESEV', 'imult': 'RESEV',
+    'idivi': 'RESEV', 'iand': 'RESEV', 'ior': 'RESEV', 'ixor': 'RESEV', 'icomp': 'RESEV',
+    # 40-bit
+    'salta': 'RESEV', 'llama': 'RESEV', 'sicero': 'RESEV', 'sincero': 'RESEV',
+    'sipos': 'RESEV', 'sineg': 'RESEV', 'sioverfl': 'RESEV', 'simayor': 'RESEV',
+    'simenor': 'RESEV', 'interrup': 'RESEV',
+}
 
 def t_NAME(t):
     r"[A-Za-z_][A-Za-z_0-9]*"
     val = t.value; low = val.lower()
     if low in reserved:
         t.type = reserved[low]; t.value = low
+    elif low in isa_mnemonics:
+        t.type = 'RESEV'; t.value = val
     else:
         t.type = 'NAME'; t.value = val
     return t

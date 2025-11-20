@@ -16,27 +16,35 @@ import re
 
 
 class ParserContext:
-    def __init__(self, reg_start: int = 4, reg_end: int = 15):
+    def __init__(self, reg_start: int = 4, reg_end: int = 31):  # CPU has R0-R31, R4-R31 are usable
         self.reg_start = reg_start
         self.reg_end = reg_end
         self.next_reg = reg_start
         self.var_map = {}
         self.temp_count = 0
         self.label_count = 0
+        self.max_var_reg = reg_start - 1  # Track highest register used by variables
 
     def reg_for(self, var: str) -> int:
         if var in self.var_map:
             return self.var_map[var]
         if self.next_reg > self.reg_end:
-            self.next_reg = self.reg_start
+            raise RuntimeError(f"Out of registers! Cannot allocate register for variable '{var}'")
         r = self.next_reg
         self.var_map[var] = r
         self.next_reg += 1
+        self.max_var_reg = max(self.max_var_reg, r)  # Track max variable register
         return r
 
     def new_temp(self) -> int:
+        # Temporaries can wrap around, but only in the temp space above variables
+        # If we've allocated variables up to R7, temps cycle from R8-R63
+        temp_start = self.max_var_reg + 1
+        if temp_start > self.reg_end:
+            raise RuntimeError("Out of registers for temporaries!")
+        
         if self.next_reg > self.reg_end:
-            self.next_reg = self.reg_start
+            self.next_reg = temp_start  # Wrap to first temp register, not reg_start
         r = self.next_reg
         self.next_reg += 1
         self.temp_count += 1
@@ -55,6 +63,9 @@ type_table: dict = {}
 _data_section: list = []
 # Array dimension registry: name -> list of dimensions (e.g. [rows] or [rows,cols])
 array_dims: dict = {}
+# Array column variable mapping: array_name -> variable_name containing column count
+# For dynamic arrays where column count is determined at runtime
+array_col_var: dict = {}
 
 
 def _mk_name(n):
@@ -412,8 +423,14 @@ def p_expr_array_access_2d(p):
     if not dims or len(dims) < 2:
         raise SyntaxError(f"Array '{name}' used with two indices but not declared as 2-D")
     rows, cols = dims[0], dims[1]
-    # offset = i * cols + j
-    offset_ast = ('binop', '+', ('binop', '*', i_ast, ('num', cols)), j_ast)
+    # Check if there's a dynamic column variable for this array
+    col_var = array_col_var.get(name)
+    if col_var:
+        # Use dynamic column count: offset = i * col_var + j
+        offset_ast = ('binop', '+', ('binop', '*', i_ast, ('name', col_var)), j_ast)
+    else:
+        # Use static column count: offset = i * cols + j
+        offset_ast = ('binop', '+', ('binop', '*', i_ast, ('num', cols)), j_ast)
     p[0] = ('memref_indirect', name, offset_ast)
 
 
@@ -486,8 +503,12 @@ def p_stmt_array_assign_expr_2d(p):
     # value
     val_temp = ctx.new_temp()
     lines = generate_expr_asm(ast, val_temp)
-    # offset = i * cols + j
-    off_ast = ('binop', '+', ('binop', '*', i_ast, ('num', cols)), j_ast)
+    # offset = i * cols + j (use dynamic column variable if available)
+    col_var = array_col_var.get(name)
+    if col_var:
+        off_ast = ('binop', '+', ('binop', '*', i_ast, ('name', col_var)), j_ast)
+    else:
+        off_ast = ('binop', '+', ('binop', '*', i_ast, ('num', cols)), j_ast)
     off_temp = ctx.new_temp()
     lines.extend(generate_expr_asm(off_ast, off_temp))
     base_temp = ctx.new_temp()
@@ -709,6 +730,12 @@ def p_stmt_while_num(p):
     p[0] = '\n'.join(out)
 
 
+def p_stmt_para(p):
+    'stmt : PARA'
+    # PARA is the halt instruction - stops program execution
+    p[0] = 'PARA'
+
+
 def p_stmt_print(p):
     'stmt : PRINT LPAREN print_args RPAREN'
     # print_args is a list of items (STRING or expr). We will emit
@@ -749,9 +776,14 @@ def p_stmt_print(p):
             raise SyntaxError(f"Unknown print item kind: {kind}")
 
     # Finally, append a newline character
+    # Use a unique marker: newline followed by null to distinguish from numeric 10
     nl_lbl = ctx.new_label('str')
     _data_section.append(f"{nl_lbl}:")
-    _data_section.append(f".data {ord('\n')}")
+    # Encode newline as part of a string (with trailing nulls) so it's 
+    # distinguishable from the numeric value 10
+    newline_bytes = b'\n\x00\x00\x00\x00\x00\x00\x01'  # Last byte = 1 to mark as string
+    newline_val = int.from_bytes(newline_bytes, 'little')
+    _data_section.append(f".data {newline_val}")
     tmp = ctx.new_temp()
     lines.append(f"CARGA R{tmp}, M[{nl_lbl}]")
     lines.append(f"GUARD R{tmp}, M[{es_addr}]")
@@ -991,6 +1023,10 @@ def p_stmt_while_gt_num(p):
 
 def p_stmt_var_decl(p):
     'stmt : VAR NAME'
+    if ctx is not None:
+        # Pre-allocate register for this variable during declaration
+        # This ensures variables get low registers (R4-R11) and temps get higher ones
+        ctx.reg_for(p[2])
     p[0] = ''
 
 
@@ -1244,6 +1280,19 @@ def compile_high_level(text: str) -> str:
     # Reset type and data section state for this compilation
     type_table.clear()
     _data_section.clear()
+    array_dims.clear()
+    array_col_var.clear()
+    
+    # Auto-detect dynamic matrix multiplication pattern and set column variables
+    # If source contains "var A[" and "var c1", assume A uses c1 for columns
+    # Similarly for B->c2, C->c2
+    if 'var A[' in text and 'var c1' in text:
+        array_col_var['A'] = 'c1'
+    if 'var B[' in text and 'var c2' in text:
+        array_col_var['B'] = 'c2'
+    if 'var C[' in text and 'var c2' in text:
+        array_col_var['C'] = 'c2'
+    
     lexer = lex_spl.build_lexer()
     ctx = ParserContext()
     import sys

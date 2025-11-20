@@ -62,7 +62,7 @@ def parse_memory(tok: str) -> int:
     return int(m.group(1))
 
 
-def assemble_line(line: str, table: dict) -> str:
+def assemble_line(line: str, table: dict, label_map: dict = None) -> str:
     line = line.strip()
     if not line or line.startswith(';') or line.startswith('//'):
         return None
@@ -73,6 +73,8 @@ def assemble_line(line: str, table: dict) -> str:
     if mnemonic not in table:
         raise ValueError(f'Unknown mnemonic: {mnemonic} (line: {line})')
     length, offset, opcode = table[mnemonic]
+    if label_map is None:
+        label_map = {}
 
     if length == '54':
         if len(parts) < 3:
@@ -108,12 +110,18 @@ def assemble_line(line: str, table: dict) -> str:
             raise ValueError(f'Instruction {mnemonic} expects R and immediate')
         r = parse_register(parts[1])
         v_tok = parts[2]
-        if v_tok.startswith('0x') or v_tok.startswith('0X'):
+        # Check if it's a label reference
+        if v_tok in label_map:
+            v = label_map[v_tok]
+        elif v_tok.startswith('0x') or v_tok.startswith('0X'):
             v = int(v_tok, 16)
         elif v_tok.startswith('0b') or v_tok.startswith('0B'):
             v = int(v_tok, 2)
         else:
-            v = int(v_tok, 0)
+            try:
+                v = int(v_tok, 0)
+            except ValueError:
+                raise ValueError(f'Invalid immediate value or unknown label: {v_tok}')
         return opcode + to_nbits(r, 5) + to_nbits(v, 32)
     elif length == '40':
         if len(parts) < 2:
@@ -223,7 +231,7 @@ def assemble_text(text: str) -> list:
         except Exception:
             pass
 
-        inst = assemble_line(line, table)
+        inst = assemble_line(line, table, label_map)
         if inst:
             if len(inst) != 64:
                 raise ValueError(f'Assembled instruction not 64 bits: {inst} length {len(inst)}')
