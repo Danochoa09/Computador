@@ -1,0 +1,30 @@
+# =====================================================
+# EJEMPLO 3: Uso de RECORD (sinónimo de TYPE)
+# Define un estudiante con calificaciones
+# =====================================================
+
+#define OUTPUT_ADDR 131072
+
+# Definir record Student con 3 calificaciones
+record Student { grade1, grade2, grade3 }
+
+# Crear instancia
+var student : Student
+var total
+
+# Ingresar calificaciones
+student.grade1 = 85
+student.grade2 = 90
+student.grade3 = 78
+
+print("Calificación 1: ", student.grade1)
+print("Calificación 2: ", student.grade2)
+print("Calificación 3: ", student.grade3)
+
+# Calcular total
+total = student.grade1 + student.grade2 + student.grade3
+
+print("Total de puntos: ", total)
+
+# Guardar resultado
+M[OUTPUT_ADDR] = total

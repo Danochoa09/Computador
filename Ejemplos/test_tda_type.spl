@@ -1,0 +1,38 @@
+# =====================================================
+# EJEMPLO 1: Uso de TYPE (forma original)
+# Define un punto en 2D y realiza operaciones
+# =====================================================
+
+#define OUTPUT_ADDR 131072
+
+# Definir tipo Point con coordenadas x, y
+type Point { x, y }
+
+# Crear instancias de Point
+var p1 : Point
+var p2 : Point
+var distance_sq
+
+# Inicializar puntos
+p1.x = 3
+p1.y = 4
+
+p2.x = 0
+p2.y = 0
+
+print("Punto 1: (", p1.x, ", ", p1.y, ")")
+print("Punto 2: (", p2.x, ", ", p2.y, ")")
+
+# Calcular distancia al cuadrado: (x1-x2)^2 + (y1-y2)^2
+var dx
+var dy
+
+dx = p1.x - p2.x
+dy = p1.y - p2.y
+
+distance_sq = dx * dx + dy * dy
+
+print("Distancia al cuadrado: ", distance_sq)
+
+# Guardar resultado
+M[OUTPUT_ADDR] = distance_sq

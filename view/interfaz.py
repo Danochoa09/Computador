@@ -742,59 +742,75 @@ if __name__ == "__main__":
 class VentanaCompilacion(tk.Toplevel):
     def __init__(self, master):
         super().__init__(master)
-        self.title("Compilación y Ensamblado")
-        self.geometry("1100x600")
+        self.title("Pipeline de Compilación SPL")
+        self.geometry("1600x700")
         self._build_ui()
 
     def _build_ui(self):
-        # Layout: three columns: Relocalizable | Assembler | Alto Nivel
+        # Layout: four columns showing the compilation pipeline
         container = tk.Frame(self)
         container.pack(fill="both", expand=True, padx=8, pady=8)
 
-        # Left: Código relocalizable
-        left = ttk.LabelFrame(container, text="CÓDIGO RELOCALIZABLE", padding=8)
-        left.grid(row=0, column=0, padx=6, pady=6, sticky="nsew")
-        container.grid_columnconfigure(0, weight=1)
-        container.grid_columnconfigure(1, weight=1)
-        container.grid_columnconfigure(2, weight=1)
-        container.grid_rowconfigure(0, weight=1)
+        # Column 0: Código Alto Nivel (SPL)
+        col0 = ttk.LabelFrame(container, text="1. CÓDIGO SPL", padding=8)
+        col0.grid(row=0, column=0, padx=4, pady=6, sticky="nsew")
+        
+        top_row0 = tk.Frame(col0)
+        top_row0.pack(fill="x")
+        ttk.Button(top_row0, text="Cargar", command=self._cargar_archivo_high).pack(side="left", padx=2)
+        ttk.Button(top_row0, text="Preprocesar →", command=self._preprocesar).pack(side="left", padx=2)
+        
+        self.txt_high = scrolledtext.ScrolledText(col0, width=35, height=25, wrap=tk.NONE)
+        self.txt_high.pack(fill="both", expand=True)
+        
+        # Column 1: Código Preprocesado
+        col1 = ttk.LabelFrame(container, text="2. PREPROCESADO", padding=8)
+        col1.grid(row=0, column=1, padx=4, pady=6, sticky="nsew")
+        
+        top_row1 = tk.Frame(col1)
+        top_row1.pack(fill="x")
+        ttk.Button(top_row1, text="Compilar →", command=self._compilar).pack(side="left", padx=2)
+        
+        self.txt_preproc = scrolledtext.ScrolledText(col1, width=35, height=25, wrap=tk.NONE)
+        self.txt_preproc.pack(fill="both", expand=True)
 
-        addr_row = tk.Frame(left)
-        addr_row.pack(fill="x")
-        ttk.Label(addr_row, text="Dirección carga (hex):").pack(side="left")
-        self.addr_entry = ttk.Entry(addr_row, width=12)
-        self.addr_entry.insert(0, "0")
-        self.addr_entry.pack(side="left", padx=6)
-        ttk.Button(addr_row, text="Enlazar Cargar", command=self._enlazar_cargar).pack(side="left", padx=6)
-
-        self.txt_reloc = scrolledtext.ScrolledText(left, width=40, height=25)
-        self.txt_reloc.pack(fill="both", expand=True, pady=(6,0))
-
-        # Middle: Código Assembler
-        mid = ttk.LabelFrame(container, text="CÓDIGO ASSEMBLER", padding=8)
-        btn_mid = tk.Frame(mid)
+        # Column 2: Código Assembler
+        col2 = ttk.LabelFrame(container, text="3. ENSAMBLADOR", padding=8)
+        col2.grid(row=0, column=2, padx=4, pady=6, sticky="nsew")
+        
+        btn_mid = tk.Frame(col2)
         btn_mid.pack(fill="x")
-        ttk.Button(btn_mid, text="Ensamblar", command=self._ensamblar).pack(side="left", padx=6, pady=6)
-        ttk.Button(btn_mid, text="Tokens", command=self._mostrar_tokens).pack(side="left", padx=6, pady=6)
-        mid.grid(row=0, column=1, padx=6, pady=6, sticky="nsew")
-        self.txt_asm = scrolledtext.ScrolledText(mid, width=40, height=25)
+        ttk.Button(btn_mid, text="Ensamblar →", command=self._ensamblar).pack(side="left", padx=2)
+        ttk.Button(btn_mid, text="Tokens", command=self._mostrar_tokens).pack(side="left", padx=2)
+        
+        self.txt_asm = scrolledtext.ScrolledText(col2, width=35, height=25, wrap=tk.NONE)
         self.txt_asm.pack(fill="both", expand=True)
 
-        # Right: Código Alto Nivel
-        right = ttk.LabelFrame(container, text="CÓDIGO ALTO NIVEL", padding=8)
-        right.grid(row=0, column=2, padx=6, pady=6, sticky="nsew")
-        top_row = tk.Frame(right)
-        top_row.pack(fill="x")
-        ttk.Button(top_row, text="Cargar Archivo", command=self._cargar_archivo_high).pack(side="left")
-        ttk.Button(top_row, text="Compilar", command=self._compilar).pack(side="left", padx=6)
-        self.txt_high = scrolledtext.ScrolledText(right, width=40, height=25)
-        self.txt_high.pack(fill="both", expand=True)
+        # Column 3: Código Binario
+        col3 = ttk.LabelFrame(container, text="4. BINARIO", padding=8)
+        col3.grid(row=0, column=3, padx=4, pady=6, sticky="nsew")
+        
+        addr_row = tk.Frame(col3)
+        addr_row.pack(fill="x")
+        ttk.Label(addr_row, text="Dir. carga (hex):").pack(side="left")
+        self.addr_entry = ttk.Entry(addr_row, width=10)
+        self.addr_entry.insert(0, "0")
+        self.addr_entry.pack(side="left", padx=4)
+        ttk.Button(addr_row, text="Cargar", command=self._enlazar_cargar).pack(side="left", padx=2)
+
+        self.txt_reloc = scrolledtext.ScrolledText(col3, width=35, height=25, wrap=tk.NONE)
+        self.txt_reloc.pack(fill="both", expand=True)
+        
+        # Configure grid weights
+        for i in range(4):
+            container.grid_columnconfigure(i, weight=1)
+        container.grid_rowconfigure(0, weight=1)
 
     # Actions
     def _cargar_archivo_high(self):
         path = filedialog.askopenfilename(
-            title="Seleccionar código alto nivel",
-            filetypes=(("SPL/ASM", "*.spl;*.s;*.as"), ("Todos", "*.*")),
+            title="Seleccionar código SPL",
+            filetypes=(("SPL files", "*.spl"), ("Todos", "*.*")),
         )
         if not path:
             return
@@ -802,24 +818,53 @@ class VentanaCompilacion(tk.Toplevel):
             txt = Path(path).read_text(encoding="utf-8")
             self.txt_high.delete("1.0", tk.END)
             self.txt_high.insert(tk.END, txt)
+            # Clear downstream stages
+            self.txt_preproc.delete("1.0", tk.END)
+            self.txt_asm.delete("1.0", tk.END)
+            self.txt_reloc.delete("1.0", tk.END)
         except Exception as e:
             tk.messagebox.showerror("Error", f"No se pudo cargar: {e}")
+    
+    def _preprocesar(self):
+        """Paso 1: Preprocesar el código SPL (expandir #define e #include)"""
+        src = self.txt_high.get("1.0", tk.END).strip()
+        if not src:
+            tk.messagebox.showwarning("Atención", "No hay código para preprocesar.")
+            return
+        try:
+            from model.preprocesador.preprocessor import preprocess
+            preprocessed = preprocess(src, source_file=None)
+            self.txt_preproc.delete("1.0", tk.END)
+            self.txt_preproc.insert(tk.END, preprocessed)
+            # Clear downstream stages
+            self.txt_asm.delete("1.0", tk.END)
+            self.txt_reloc.delete("1.0", tk.END)
+        except Exception as e:
+            tk.messagebox.showerror("Error al preprocesar", f"{e}")
 
     def _compilar(self):
-        src = self.txt_high.get("1.0", tk.END)
-        if not src.strip():
-            tk.messagebox.showwarning("Atención", "No hay código para compilar.")
-            return
+        """Paso 2: Compilar código preprocesado a ensamblador"""
+        src = self.txt_preproc.get("1.0", tk.END).strip()
+        if not src:
+            # Si no hay código preprocesado, intentar preprocesar primero
+            self._preprocesar()
+            src = self.txt_preproc.get("1.0", tk.END).strip()
+            if not src:
+                return
+        
         try:
             asm = compile_high_level(src)
             self.txt_asm.delete("1.0", tk.END)
             self.txt_asm.insert(tk.END, asm)
+            # Clear downstream stages
+            self.txt_reloc.delete("1.0", tk.END)
         except Exception as e:
             tk.messagebox.showerror("Error al compilar", f"{e}")
 
     def _ensamblar(self):
-        asm = self.txt_asm.get("1.0", tk.END)
-        if not asm.strip():
+        """Paso 3: Ensamblar código a binario"""
+        asm = self.txt_asm.get("1.0", tk.END).strip()
+        if not asm:
             tk.messagebox.showwarning("Atención", "No hay código assembler para ensamblar.")
             return
         try:
@@ -837,10 +882,15 @@ class VentanaCompilacion(tk.Toplevel):
             tk.messagebox.showerror("Error al ensamblar", f"{e}")
 
     def _enlazar_cargar(self):
+        """Paso 4: Cargar código binario en memoria"""
         bits = self.txt_reloc.get("1.0", tk.END).strip().splitlines()
+        # Filtrar líneas de comentarios y vacías
+        bits = [line for line in bits if line.strip() and not line.strip().startswith('#')]
+        
         if not bits:
-            tk.messagebox.showwarning("Atención", "No hay código relocalizable para cargar.")
+            tk.messagebox.showwarning("Atención", "No hay código binario para cargar.")
             return
+        
         addr_s = self.addr_entry.get().strip()
         if not addr_s:
             addr_s = "0"
@@ -851,15 +901,20 @@ class VentanaCompilacion(tk.Toplevel):
             return
 
         try:
-            Enlazador.set_machine_code("\n".join(bits))
-            Enlazador.link_load_machine_code(addr)
-            tk.messagebox.showinfo("Éxito", f"Código cargado en memoria desde {addr_s}.")
+            # Cargar directamente en memoria usando Action
+            binary_text = "\n".join(bits)
+            Action.load_machine_code(binary_text, addr)
+            tk.messagebox.showinfo("Éxito", 
+                f"Código cargado en memoria desde dirección 0x{addr:X}\n"
+                f"Total de instrucciones: {len(bits)}\n\n"
+                f"Puede ejecutar desde la ventana principal.")
         except Exception as e:
             tk.messagebox.showerror("Error al cargar", f"{e}")
 
     def _mostrar_tokens(self):
-        asm = self.txt_asm.get("1.0", tk.END)
-        if not asm.strip():
+        """Mostrar tokens del código ensamblador"""
+        asm = self.txt_asm.get("1.0", tk.END).strip()
+        if not asm:
             tk.messagebox.showwarning("Atención", "No hay código assembler para tokenizar.")
             return
         try:
@@ -869,11 +924,19 @@ class VentanaCompilacion(tk.Toplevel):
             return
 
         win = tk.Toplevel(self)
-        win.title("Tokens - ASM")
-        txt = scrolledtext.ScrolledText(win, width=80, height=30)
-        txt.pack(fill="both", expand=True)
+        win.title("Tokens - Ensamblador")
+        win.geometry("600x400")
+        txt = scrolledtext.ScrolledText(win, width=70, height=25, font=("Courier", 10))
+        txt.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        txt.insert(tk.END, f"{'TIPO':<15} {'VALOR':<30}\n")
+        txt.insert(tk.END, "="*50 + "\n")
+        
         for kind, val in tokens:
-            txt.insert(tk.END, f"{kind}\t{val}\n")
+            txt.insert(tk.END, f"{kind:<15} {val:<30}\n")
+        
+        txt.insert(tk.END, "\n" + "="*50 + "\n")
+        txt.insert(tk.END, f"Total de tokens: {len(tokens)}\n")
         txt.configure(state='disabled')
 
     def _tokenize_asm(self, text):

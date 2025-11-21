@@ -1,0 +1,40 @@
+# =====================================================
+# EJEMPLO 6: TDA complejo - Sistema de vectores
+# Demuestra múltiples instancias y operaciones
+# =====================================================
+
+#define OUTPUT_ADDR 131072
+
+# Definir struct Vector2D
+struct Vector2D { x, y }
+
+# Crear tres vectores
+var v1 : Vector2D
+var v2 : Vector2D
+var result : Vector2D
+
+# Inicializar v1
+v1.x = 3
+v1.y = 4
+
+# Inicializar v2
+v2.x = 5
+v2.y = 12
+
+print("Vector 1: (", v1.x, ", ", v1.y, ")")
+print("Vector 2: (", v2.x, ", ", v2.y, ")")
+
+# Sumar vectores: result = v1 + v2
+result.x = v1.x + v2.x
+result.y = v1.y + v2.y
+
+print("Resultado: (", result.x, ", ", result.y, ")")
+
+# Calcular magnitud al cuadrado de result: x^2 + y^2
+var magnitude_sq
+magnitude_sq = result.x * result.x + result.y * result.y
+
+print("Magnitud al cuadrado: ", magnitude_sq)
+
+# Guardar resultado
+M[OUTPUT_ADDR] = magnitude_sq

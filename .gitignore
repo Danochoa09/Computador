@@ -35,13 +35,13 @@ desktop.ini
 
 # Archivos de prueba y documentación auxiliar
 test_*.py
-CORRECCION_DIRECCION_RESULTADO.md
-PREPROCESADOR_README.md
-RESUMEN_PREPROCESADOR.md
 Tarea*.pdf
 
 # Archivos de ejemplo temporales (mantener los de libs/)
-utils.py
+check_regs.py
+decode_bin.py
+decode_strings.py
+scripts.py
 test.py
 test.spl
 test2.spl
@@ -55,6 +55,8 @@ Ejemplos/SPL/*.o
 Ejemplos/SPL/*.i
 Ejemplos/SPL/*.meta.json
 tools/
+docs/
+tests/
 
 # Parser tables generados por PLY
 parsetab.py

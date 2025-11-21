@@ -600,6 +600,31 @@ def p_stmt_type_decl(p):
     p[0] = f"; TYPE {typename} with fields {fields}"
 
 
+def p_stmt_struct_decl(p):
+    'stmt : STRUCT NAME LBRACE fields RBRACE'
+    typename = p[2]
+    fields = p[4]
+    type_table[typename] = list(fields)
+    p[0] = f"; STRUCT {typename} with fields {fields}"
+
+
+def p_stmt_record_decl(p):
+    'stmt : RECORD NAME LBRACE fields RBRACE'
+    typename = p[2]
+    fields = p[4]
+    type_table[typename] = list(fields)
+    p[0] = f"; RECORD {typename} with fields {fields}"
+
+
+def p_stmt_class_decl(p):
+    'stmt : CLASS NAME LBRACE fields RBRACE'
+    typename = p[2]
+    fields = p[4]
+    type_table[typename] = list(fields)
+    # Warning: class is treated as struct (no methods/inheritance)
+    p[0] = f"; CLASS {typename} with fields {fields} (treated as struct)"
+
+
 def p_fields_single(p):
     'fields : NAME'
     p[0] = [p[1]]
@@ -608,6 +633,25 @@ def p_fields_single(p):
 def p_fields_multiple(p):
     'fields : NAME COMMA fields'
     p[0] = [p[1]] + p[3]
+
+
+def p_fields_with_visibility(p):
+    '''fields : PRIVATE COLON NAME
+              | PUBLIC COLON NAME
+              | PROTECTED COLON NAME'''
+    # Visibility is parsed but not enforced (educational purpose)
+    visibility = p[1]  # 'private', 'public', or 'protected'
+    field_name = p[3]
+    p[0] = [f"{visibility}_{field_name}"]  # Mark field with visibility prefix
+
+
+def p_fields_visibility_multiple(p):
+    '''fields : PRIVATE COLON NAME COMMA fields
+              | PUBLIC COLON NAME COMMA fields
+              | PROTECTED COLON NAME COMMA fields'''
+    visibility = p[1]
+    field_name = p[3]
+    p[0] = [f"{visibility}_{field_name}"] + p[5]
 
 
 def p_stmt_var_typed(p):

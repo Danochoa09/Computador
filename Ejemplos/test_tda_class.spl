@@ -1,0 +1,41 @@
+# =====================================================
+# EJEMPLO 4: Uso de CLASS (tratado como struct)
+# Define una cuenta bancaria simple
+# =====================================================
+
+#define OUTPUT_ADDR 131072
+
+# Definir class Account (tratado como struct - sin métodos)
+class Account { balance, transactions }
+
+# Crear instancia
+var account : Account
+var deposit
+var withdrawal
+var final_balance
+
+# Inicializar cuenta
+account.balance = 1000
+account.transactions = 0
+
+print("Balance inicial: ", account.balance)
+
+# Realizar depósito
+deposit = 500
+account.balance = account.balance + deposit
+account.transactions = account.transactions + 1
+
+print("Después de depósito de ", deposit)
+print("Balance actual: ", account.balance)
+
+# Realizar retiro
+withdrawal = 200
+account.balance = account.balance - withdrawal
+account.transactions = account.transactions + 1
+
+print("Después de retiro de ", withdrawal)
+print("Balance final: ", account.balance)
+print("Transacciones totales: ", account.transactions)
+
+# Guardar resultado
+M[OUTPUT_ADDR] = account.balance

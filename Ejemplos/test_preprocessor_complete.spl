@@ -1,0 +1,54 @@
+# =====================================================
+# EJEMPLO COMPLETO: Uso de múltiples librerías
+# Demuestra el uso de basicmath.spl y matrices.spl
+# =====================================================
+
+# Definir constantes
+#define SIZE 2
+#define OUTPUT_ADDR 131072
+
+# Variables para factorial
+var fact_n
+var fact_result
+
+# Variables para matrices
+var mat_rows
+var mat_cols
+var mat_A[SIZE][SIZE]
+var mat_B[SIZE][SIZE]
+var mat_C[SIZE][SIZE]
+
+# Calcular factorial de 5
+fact_n = 5
+print("Calculando factorial de ", fact_n)
+
+# Incluir librería de matemáticas
+#include "basicmath.spl"
+
+print("Factorial de 5 es: ", fact_result)
+
+# Inicializar matrices
+mat_rows = SIZE
+mat_cols = SIZE
+mat_A[0][0] = 1
+mat_A[0][1] = 2
+mat_A[1][0] = 3
+mat_A[1][1] = 4
+
+mat_B[0][0] = 5
+mat_B[0][1] = 6
+mat_B[1][0] = 7
+mat_B[1][1] = 8
+
+print("Multiplicando matrices...")
+
+# Incluir librería de matrices
+#include "matrices.spl"
+
+print("Resultado C[0][0] = ", mat_C[0][0])
+print("Resultado C[0][1] = ", mat_C[0][1])
+print("Resultado C[1][0] = ", mat_C[1][0])
+print("Resultado C[1][1] = ", mat_C[1][1])
+
+# Guardar último resultado
+M[OUTPUT_ADDR] = mat_C[1][1]

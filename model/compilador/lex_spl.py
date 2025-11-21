@@ -49,6 +49,19 @@ tokens = (
     'TRUE',
     'FALSE',
     'TYPE',
+    'STRUCT',
+    'RECORD',
+    'CLASS',
+    'NEW',
+    'DELETE',
+    'PRIVATE',
+    'PUBLIC',
+    'PROTECTED',
+    'INTERFACE',
+    'ABSTRACT',
+    'MODULE',
+    'IMPORT',
+    'EXPORT',
     'PRINT',
     'INPUT',
     'FOR',
@@ -155,7 +168,11 @@ reserved = {
     'not': 'NOT', 'for': 'FOR', 'proc': 'PROC', 'return': 'RETURN', 'var': 'VAR',
     'array': 'ARRAY', 'matrix': 'MATRIX', 'true': 'TRUE', 'false': 'FALSE', 'call': 'CALL',
 }
-reserved.update({'type': 'TYPE'})
+reserved.update({'type': 'TYPE', 'struct': 'STRUCT', 'record': 'RECORD', 'class': 'CLASS'})
+reserved.update({'new': 'NEW', 'delete': 'DELETE'})
+reserved.update({'private': 'PRIVATE', 'public': 'PUBLIC', 'protected': 'PROTECTED'})
+reserved.update({'interface': 'INTERFACE', 'abstract': 'ABSTRACT'})
+reserved.update({'module': 'MODULE', 'import': 'IMPORT', 'export': 'EXPORT'})
 reserved.update({'print': 'PRINT', 'input': 'INPUT'})
 reserved.update({'begin': 'BEGIN', 'end': 'END'})
 reserved.update({'para': 'PARA'})
