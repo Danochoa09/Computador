@@ -1,10 +1,17 @@
 """
 Pipeline that takes source SPL/assembly text and produces a binary image (list of 64-bit strings).
 Moved from tools/ to model/compilador with updated imports.
+
+Flujo completo:
+1. Preprocesador: Expansión de macros #define e #include
+2. Compilador: Análisis sintáctico, semántico y generación de código ensamblador
+3. Ensamblador: Conversión a código objeto
+4. Enlazador-Cargador: Resolución de símbolos y carga en memoria
 """
 from pathlib import Path
 import re
 
+from model.preprocesador.preprocessor import preprocess
 from model.ensamblador.assembler_from_as import assemble_text, MNEMONIC_TABLE
 from model.compilador.parser_spl import compile_high_level
 
@@ -24,16 +31,29 @@ def _find_repo_root(start: Path) -> Path:
 ROOT = _find_repo_root(Path(__file__).resolve())
 
 
-def pipeline_from_text(source_text: str, out_dir: Path = None, basename: str = 'image'):
-    """Process source_text through preprocessor (identity), assembler and linker.
+def pipeline_from_text(source_text: str, out_dir: Path = None, basename: str = 'image', source_file: Path = None):
+    """Process source_text through preprocessor, compiler, assembler and linker.
     Returns list of 64-bit strings (the final image) and writes an image file.
+    
+    Flujo:
+    1. PREPROCESADOR: Expande macros y procesa includes
+    2. COMPILADOR: Traduce SPL a ensamblador (sintaxis + semántica + generación)
+    3. ENSAMBLADOR: Convierte ensamblador a código objeto
+    4. ENLAZADOR: Resuelve símbolos y genera imagen ejecutable
     """
     if out_dir is None:
         out_dir = ROOT / 'Ejemplos' / 'SPL'
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Preprocessor step (SPL -> asm) or pass-through for asm
-    s_text = compile_high_level(source_text)
+    # 1. PREPROCESADOR: Expande #define e #include
+    preprocessed_text = preprocess(source_text, source_file)
+    
+    # Guardar código preprocesado para debugging
+    pp_path = out_dir / f'{basename}.pp'
+    pp_path.write_text(preprocessed_text, encoding='utf-8')
+
+    # 2. COMPILADOR: SPL -> ASM (incluye análisis sintáctico y semántico)
+    s_text = compile_high_level(preprocessed_text)
     s_path = out_dir / f'{basename}.s'
     s_path.write_text(s_text, encoding='utf-8')
 

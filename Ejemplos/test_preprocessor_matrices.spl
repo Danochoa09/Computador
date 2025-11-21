@@ -1,0 +1,59 @@
+# =====================================================
+# EJEMPLO 3: Multiplicación de matrices con preprocesador
+# Usa #define e #include para multiplicar matrices 2x2
+# =====================================================
+
+# Definir dimensiones como constantes
+#define FILAS_A 2
+#define COLS_A 2
+#define FILAS_B 2
+#define COLS_B 2
+
+# Declarar matrices
+var mat_A[2][2]
+var mat_B[2][2]
+var mat_C[2][2]
+
+; Variables de control
+var filas_A
+var cols_A
+var cols_B
+var mat_i
+var mat_j
+var mat_k
+var mat_sum
+
+# Inicializar dimensiones
+filas_A = FILAS_A
+cols_A = COLS_A
+cols_B = COLS_B
+
+# Inicializar matriz A = [[1, 2], [3, 4]]
+mat_A[0][0] = 1
+mat_A[0][1] = 2
+mat_A[1][0] = 3
+mat_A[1][1] = 4
+
+# Inicializar matriz B = [[5, 6], [7, 8]]
+mat_B[0][0] = 5
+mat_B[0][1] = 6
+mat_B[1][0] = 7
+mat_B[1][1] = 8
+
+print("Matriz A:")
+print(mat_A[0][0], " ", mat_A[0][1])
+print(mat_A[1][0], " ", mat_A[1][1])
+
+print("Matriz B:")
+print(mat_B[0][0], " ", mat_B[0][1])
+print(mat_B[1][0], " ", mat_B[1][1])
+
+# Incluir librería de matrices para multiplicar
+#include "matrices.spl"
+
+# Mostrar resultado C = A * B
+print("Matriz C (resultado):")
+print(mat_C[0][0], " ", mat_C[0][1])
+print(mat_C[1][0], " ", mat_C[1][1])
+
+# Resultado esperado: [[19, 22], [43, 50]]

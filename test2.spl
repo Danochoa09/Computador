@@ -1,9 +1,0 @@
-var A[10][10]
-var i
-var k
-var result
-i = 1
-k = 2
-A[i][k] = 99
-result = A[i][k]
-print("Result: ", result)

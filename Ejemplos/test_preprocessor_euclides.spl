@@ -1,0 +1,29 @@
+# =====================================================
+# EJEMPLO 2: Uso del preprocesador para calcular MCD
+# Calcula el MCD de dos números usando Euclides
+# =====================================================
+
+# Definir constantes
+#define NUM_A 48
+#define NUM_B 18
+#define OUTPUT_ADDR 131072
+
+# Variables para la función euclides
+var mcd_a
+var mcd_b
+var mcd_result
+
+# Inicializar valores
+mcd_a = NUM_A
+mcd_b = NUM_B
+
+print("Calculando MCD de ", NUM_A, " y ", NUM_B)
+
+# Incluir librería de matemáticas
+#include "basicmath.spl"
+
+# Mostrar resultado
+print("El MCD es: ", mcd_result)
+
+# Guardar en memoria de salida
+M[OUTPUT_ADDR] = mcd_result

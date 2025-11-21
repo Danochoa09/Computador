@@ -1,0 +1,86 @@
+# =====================================================
+# Librería BASICMATH para SPL
+# Funciones matemáticas básicas
+# =====================================================
+# Esta librería provee funciones para:
+#   - Calcular el Máximo Común Divisor (MCD) - Algoritmo de Euclides
+#   - Calcular el Factorial de un número
+# =====================================================
+
+# -----------------------------------------------------
+# FUNCIÓN: euclides_mcd
+# Calcula el Máximo Común Divisor usando algoritmo de Euclides
+# Entrada: 
+#   - mcd_a: primer número
+#   - mcd_b: segundo número
+# Salida:
+#   - mcd_result: el MCD de a y b
+# Uso:
+#   mcd_a = 48
+#   mcd_b = 18
+#   #include "basicmath.spl"
+#   # mcd_result contendrá 6
+# -----------------------------------------------------
+
+while mcd_a != mcd_b:
+    if mcd_a > mcd_b:
+        mcd_a = mcd_a - mcd_b
+    else:
+        mcd_b = mcd_b - mcd_a
+    end
+end
+
+mcd_result = mcd_a
+
+
+# -----------------------------------------------------
+# FUNCIÓN: factorial
+# Calcula el factorial de un número
+# Entrada:
+#   - fact_n: número del cual calcular el factorial
+# Salida:
+#   - fact_result: factorial de n
+# Nota: fact_result se inicializa en 1 antes del cálculo
+# Uso:
+#   fact_n = 5
+#   #include "basicmath.spl"
+#   # fact_result contendrá 120
+# -----------------------------------------------------
+
+fact_result = 1
+
+while fact_n > 1:
+    fact_result = fact_result * fact_n
+    fact_n = fact_n - 1
+end
+
+
+# -----------------------------------------------------
+# FUNCIÓN: potencia
+# Calcula base^exponente
+# Entrada:
+#   - pow_base: base
+#   - pow_exp: exponente
+#   - pow_counter: variable temporal (inicializar en 0)
+# Salida:
+#   - pow_result: base^exponente
+# Uso:
+#   pow_base = 2
+#   pow_exp = 8
+#   pow_counter = 0
+#   #include "basicmath.spl"
+#   # pow_result contendrá 256
+# -----------------------------------------------------
+
+pow_result = 1
+pow_counter = 0
+
+while pow_counter < pow_exp:
+    pow_result = pow_result * pow_base
+    pow_counter = pow_counter + 1
+end
+
+
+# =====================================================
+# FIN DE LIBRERÍA BASICMATH
+# =====================================================

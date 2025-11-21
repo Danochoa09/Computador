@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos temporales de compilación
+*.pp
+*.s
+*.i
+*.meta.json
+
+
+# Archivos de prueba y documentación auxiliar
+test_*.py
+CORRECCION_DIRECCION_RESULTADO.md
+PREPROCESADOR_README.md
+RESUMEN_PREPROCESADOR.md
+Tarea*.pdf
+
+# Archivos de ejemplo temporales (mantener los de libs/)
+utils.py
+test.py
+test.spl
+test2.spl
+test3.spl
+test4.spl
+test5.spl
+Ejemplos/demo_*.spl
+Ejemplos/SPL/*.pp
+Ejemplos/SPL/*.s
+Ejemplos/SPL/*.o
+Ejemplos/SPL/*.i
+Ejemplos/SPL/*.meta.json
+tools/
+
+# Parser tables generados por PLY
+parsetab.py
+parser.out
+
+# Logs
+*.log

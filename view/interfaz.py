@@ -18,9 +18,13 @@ def _detect_guard_address_from_binary_lines(codigo_lines):
     This uses the assembler mnemonic table to obtain the opcode bitpattern for
     GUARD and then scans the binary lines for that prefix. When found, the last
     24 bits of the instruction hold the memory address (per encoding).
+    
+    Returns the LAST GUARD address in the DATA_RANGE (131072+) to avoid
+    detecting I/O writes (65536-131071).
     """
     try:
         from model.ensamblador.assembler_from_as import MNEMONIC_TABLE
+        from constants import DATA_RANGE
     except Exception:
         return None
 
@@ -29,6 +33,7 @@ def _detect_guard_address_from_binary_lines(codigo_lines):
         return None
     opcode_bits = guard_entry[2]
 
+    last_data_addr = None
     for linea in codigo_lines:
         linea = linea.strip()
         if not linea:
@@ -36,10 +41,12 @@ def _detect_guard_address_from_binary_lines(codigo_lines):
         if linea.startswith(opcode_bits):
             try:
                 addr = int(linea[-24:], 2)
-                return addr
+                # Only consider addresses in DATA_RANGE (ignore E/S writes)
+                if addr >= DATA_RANGE[0]:
+                    last_data_addr = addr
             except Exception:
-                return None
-    return None
+                continue
+    return last_data_addr
 import numpy as np
 import threading
 from model.procesador.memory import Memory

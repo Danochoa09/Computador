@@ -1,0 +1,61 @@
+# =====================================================
+# EJEMPLO 4: Uso combinado de múltiples librerías
+# Demuestra #define e #include de múltiples archivos
+# =====================================================
+
+# Constantes del programa
+#define MAX_ITERATIONS 10
+#define OUTPUT_BASE 131072
+#define INITIAL_VALUE 5
+
+# Variables para factorial
+var fact_n
+var fact_result
+
+# Variables para potencia
+var pow_base
+var pow_exp
+var pow_result
+var pow_counter
+
+# Variables para MCD
+var mcd_a
+var mcd_b
+var mcd_result
+
+print("=== DEMO DEL PREPROCESADOR ===")
+
+# ---------------------------------------
+# PRUEBA 1: Factorial
+# ---------------------------------------
+print("1. Calculando factorial de ", INITIAL_VALUE)
+fact_n = INITIAL_VALUE
+
+#include "basicmath.spl"
+
+print("   Resultado: ", fact_result)
+M[OUTPUT_BASE] = fact_result
+
+# ---------------------------------------
+# PRUEBA 2: Potencia
+# ---------------------------------------
+print("2. Calculando 2^8")
+pow_base = 2
+pow_exp = 8
+# La función ya está incluida en basicmath.spl
+
+print("   Resultado: ", pow_result)
+M[OUTPUT_BASE + 1] = pow_result
+
+# ---------------------------------------
+# PRUEBA 3: MCD de dos números
+# ---------------------------------------
+print("3. Calculando MCD de 100 y 35")
+mcd_a = 100
+mcd_b = 35
+# La función ya está incluida en basicmath.spl
+
+print("   Resultado: ", mcd_result)
+M[OUTPUT_BASE + 2] = mcd_result
+
+print("=== FIN DE LA DEMO ===")

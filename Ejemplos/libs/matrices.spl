@@ -1,0 +1,128 @@
+# =====================================================
+# Librería MATRICES para SPL
+# Funciones para operaciones con matrices
+# =====================================================
+# Esta librería provee funciones para:
+#   - Multiplicación de matrices
+#   - Suma de matrices
+#   - Transposición de matrices
+# =====================================================
+
+# -----------------------------------------------------
+# FUNCIÓN: matriz_multiplicar
+# Multiplica dos matrices A * B = C
+# Entrada:
+#   - mat_A[filas_A][cols_A]: matriz A
+#   - mat_B[filas_B][cols_B]: matriz B
+#   - filas_A: número de filas de A
+#   - cols_A: número de columnas de A (= filas_B)
+#   - cols_B: número de columnas de B
+#   - mat_i, mat_j, mat_k, mat_sum: variables temporales
+# Salida:
+#   - mat_C[filas_A][cols_B]: matriz resultado
+# Nota: cols_A debe ser igual a filas_B
+# -----------------------------------------------------
+
+mat_i = 0
+
+while mat_i < filas_A:
+    mat_j = 0
+    
+    while mat_j < cols_B:
+        mat_sum = 0
+        mat_k = 0
+        
+        while mat_k < cols_A:
+            mat_sum = mat_sum + mat_A[mat_i][mat_k] * mat_B[mat_k][mat_j]
+            mat_k = mat_k + 1
+        end
+        
+        mat_C[mat_i][mat_j] = mat_sum
+        mat_j = mat_j + 1
+    end
+    
+    mat_i = mat_i + 1
+end
+
+
+# -----------------------------------------------------
+# FUNCIÓN: matriz_sumar
+# Suma dos matrices A + B = C
+# Entrada:
+#   - mat_A[filas][cols]: matriz A
+#   - mat_B[filas][cols]: matriz B
+#   - mat_filas: número de filas
+#   - mat_cols: número de columnas
+#   - mat_i, mat_j: variables temporales
+# Salida:
+#   - mat_C[filas][cols]: matriz resultado
+# -----------------------------------------------------
+
+mat_i = 0
+
+while mat_i < mat_filas:
+    mat_j = 0
+    
+    while mat_j < mat_cols:
+        mat_C[mat_i][mat_j] = mat_A[mat_i][mat_j] + mat_B[mat_i][mat_j]
+        mat_j = mat_j + 1
+    end
+    
+    mat_i = mat_i + 1
+end
+
+
+# -----------------------------------------------------
+# FUNCIÓN: matriz_transponer
+# Transpone una matriz A -> C (C[j][i] = A[i][j])
+# Entrada:
+#   - mat_A[filas][cols]: matriz A
+#   - mat_filas: número de filas de A
+#   - mat_cols: número de columnas de A
+#   - mat_i, mat_j: variables temporales
+# Salida:
+#   - mat_C[cols][filas]: matriz transpuesta
+# -----------------------------------------------------
+
+mat_i = 0
+
+while mat_i < mat_filas:
+    mat_j = 0
+    
+    while mat_j < mat_cols:
+        mat_C[mat_j][mat_i] = mat_A[mat_i][mat_j]
+        mat_j = mat_j + 1
+    end
+    
+    mat_i = mat_i + 1
+end
+
+
+# -----------------------------------------------------
+# FUNCIÓN: matriz_inicializar_cero
+# Inicializa una matriz con ceros
+# Entrada:
+#   - mat_filas: número de filas
+#   - mat_cols: número de columnas
+#   - mat_i, mat_j: variables temporales
+# Salida:
+#   - mat_C[filas][cols]: matriz con todos ceros
+# -----------------------------------------------------
+
+mat_i = 0
+
+while mat_i < mat_filas:
+    mat_j = 0
+    
+    while mat_j < mat_cols:
+        mat_C[mat_i][mat_j] = 0
+        mat_j = mat_j + 1
+    end
+    
+    mat_i = mat_i + 1
+end
+
+
+# =====================================================
+# FIN DE LIBRERÍA MATRICES
+# =====================================================

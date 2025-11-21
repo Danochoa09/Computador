@@ -1,0 +1,25 @@
+# =====================================================
+# EJEMPLO 1: Uso del preprocesador con #define
+# Calcula el factorial de un número usando constantes
+# =====================================================
+
+# Definir constantes con #define
+#define NUMERO_FACTORIAL 6
+#define DIRECCION_SALIDA 131072
+
+# Variables
+var fact_n
+var fact_result
+
+# Inicializar el número
+fact_n = NUMERO_FACTORIAL
+
+# Incluir la librería de matemáticas básicas
+#include "basicmath.spl"
+
+# El resultado ya está en fact_result
+# Guardar en memoria
+M[DIRECCION_SALIDA] = fact_result
+
+# Imprimir resultado
+print("Factorial de ", NUMERO_FACTORIAL, " es: ", fact_result)

@@ -1,8 +1,0 @@
-var A[10][10]
-var i
-var k
-
-i = 1
-k = 2
-# A[i][k] should access A[1*10+2] = A[12]
-A[i][k] = 99
