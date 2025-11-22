@@ -1,0 +1,41 @@
+// Ejemplo de sistema de módulos nativos
+// Característica 3: MODULE, EXPORT, IMPORT
+
+// ============ MÓDULO GEOMETRY ============
+module Geometry
+
+type Point {x, y}
+
+export Point
+
+type Circle {center_x, center_y, radius}
+
+export Circle
+
+// ============ MÓDULO MATH ============
+module Math
+
+pi = 314
+
+export pi
+
+// ============ PROGRAMA PRINCIPAL ============
+module Main
+
+// Importar tipos y funciones de otros módulos
+import Point from Geometry
+import Circle from Geometry
+import pi from Math
+
+// Usar tipos importados
+var p1 : Point = {10, 20}
+var p2 : Point = {30, 40}
+
+var c1 : Circle = {0, 0, 10}
+
+// Calcular área del círculo: pi * r^2
+area = pi * c1.radius * c1.radius
+
+// Usar puntos importados
+dx = p2.x - p1.x
+dy = p2.y - p1.y

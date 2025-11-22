@@ -45,7 +45,7 @@ pow_exp = 8
 # La función ya está incluida en basicmath.spl
 
 print("   Resultado: ", pow_result)
-M[OUTPUT_BASE + 1] = pow_result
+M[131073] = pow_result
 
 # ---------------------------------------
 # PRUEBA 3: MCD de dos números
@@ -56,6 +56,6 @@ mcd_b = 35
 # La función ya está incluida en basicmath.spl
 
 print("   Resultado: ", mcd_result)
-M[OUTPUT_BASE + 2] = mcd_result
+M[131074] = mcd_result     
 
 print("=== FIN DE LA DEMO ===")

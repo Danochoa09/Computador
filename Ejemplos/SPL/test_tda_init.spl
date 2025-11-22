@@ -1,0 +1,20 @@
+// Ejemplo de inicialización de TDA en declaración
+// Característica 1: var p : Point = {10, 20}
+
+type Point {x, y}
+
+// Inicialización de punto con valores
+var p : Point = {10, 20}
+
+// Acceso a campos
+mx = p.x
+my = p.y
+
+// Inicialización de múltiples objetos
+type Rectangle {x, y, width, height}
+
+var rect1 : Rectangle = {0, 0, 100, 50}
+var rect2 : Rectangle = {10, 10, 200, 100}
+
+area = rect1.width * rect1.height
+area = rect2.width * rect2.height

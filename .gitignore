@@ -32,11 +32,6 @@ desktop.ini
 *.i
 *.meta.json
 
-
-# Archivos de prueba y documentación auxiliar
-test_*.py
-Tarea*.pdf
-
 # Archivos de ejemplo temporales (mantener los de libs/)
 check_regs.py
 decode_bin.py
@@ -48,7 +43,6 @@ test2.spl
 test3.spl
 test4.spl
 test5.spl
-Ejemplos/demo_*.spl
 Ejemplos/SPL/*.pp
 Ejemplos/SPL/*.s
 Ejemplos/SPL/*.o

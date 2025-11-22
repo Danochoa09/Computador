@@ -57,8 +57,20 @@ class ParserContext:
 
 ctx: ParserContext | None = None
 
-# Type system: map type name -> ordered list of field names
+# Type system: map type name -> dict with 'fields' list and field metadata
+# Fields can be:
+#   - Simple: ['x', 'y'] for backward compatibility
+#   - With visibility: [{'name': 'x', 'visibility': 'public'}, ...]
 type_table: dict = {}
+# Scope tracking for encapsulation enforcement
+# When inside a type definition, this holds the type name
+current_type_scope: str | None = None
+# Module system: symbols exported by each module
+# module_symbols: dict[module_name, dict[symbol_name, symbol_info]]
+# symbol_info = {'type': 'function'|'type'|'variable', 'value': ...}
+module_symbols: dict = {}
+current_module: str | None = None  # Currently defined module
+imported_modules: dict = {}  # module_name -> list of imported symbols
 # Data section lines collected during parsing (.data and labels)
 _data_section: list = []
 # Array dimension registry: name -> list of dimensions (e.g. [rows] or [rows,cols])
@@ -66,6 +78,78 @@ array_dims: dict = {}
 # Array column variable mapping: array_name -> variable_name containing column count
 # For dynamic arrays where column count is determined at runtime
 array_col_var: dict = {}
+
+
+def _normalize_fields(fields):
+    """
+    Normaliza la lista de campos para soportar visibilidad.
+    Convierte campos simples o con visibilidad a formato uniforme.
+    Retorna: [{'name': 'x', 'visibility': 'public'}, ...]
+    """
+    normalized = []
+    for field in fields:
+        if isinstance(field, str):
+            # Campo simple sin visibilidad (ej: 'x', 'y')
+            # Detectar si tiene prefijo de visibilidad (ej: 'private_ssn')
+            if field.startswith('private_'):
+                normalized.append({'name': field[8:], 'visibility': 'private'})
+            elif field.startswith('public_'):
+                normalized.append({'name': field[7:], 'visibility': 'public'})
+            elif field.startswith('protected_'):
+                normalized.append({'name': field[10:], 'visibility': 'protected'})
+            else:
+                # Sin visibilidad explícita = public por defecto
+                normalized.append({'name': field, 'visibility': 'public'})
+        elif isinstance(field, dict):
+            # Ya está en formato normalizado
+            normalized.append(field)
+    return normalized
+
+
+def _get_field_info(typename, fieldname):
+    """
+    Obtiene información del campo incluyendo su visibilidad.
+    Retorna: {'name': 'x', 'visibility': 'public', 'offset': 0} o None
+    """
+    if typename not in type_table:
+        return None
+    
+    fields = type_table[typename]
+    for i, field in enumerate(fields):
+        if isinstance(field, dict):
+            if field['name'] == fieldname:
+                return {**field, 'offset': i}
+        elif field == fieldname:
+            # Backward compatibility: campo simple
+            return {'name': fieldname, 'visibility': 'public', 'offset': i}
+    return None
+
+
+def _check_field_access(typename, fieldname, context="external"):
+    """
+    Valida si el acceso a un campo es permitido según su visibilidad.
+    context: "external" (fuera del tipo) o "internal" (dentro del tipo)
+    Lanza SyntaxError si el acceso es inválido.
+    """
+    field_info = _get_field_info(typename, fieldname)
+    if field_info is None:
+        raise SyntaxError(f"Unknown field '{fieldname}' for type '{typename}'")
+    
+    visibility = field_info['visibility']
+    
+    # Si es público, siempre es accesible
+    if visibility == 'public':
+        return field_info
+    
+    # Si es privado o protegido, solo accesible desde dentro del tipo
+    if visibility in ('private', 'protected'):
+        if context == "external":
+            raise SyntaxError(
+                f"Cannot access {visibility} field '{fieldname}' of type '{typename}' from outside. "
+                f"Fields marked {visibility} are only accessible within the type definition."
+            )
+    
+    return field_info
 
 
 def _mk_name(n):
@@ -596,7 +680,8 @@ def p_stmt_type_decl(p):
     'stmt : TYPE NAME LBRACE fields RBRACE'
     typename = p[2]
     fields = p[4]
-    type_table[typename] = list(fields)
+    # Store fields with visibility info (if any)
+    type_table[typename] = _normalize_fields(fields)
     p[0] = f"; TYPE {typename} with fields {fields}"
 
 
@@ -604,7 +689,7 @@ def p_stmt_struct_decl(p):
     'stmt : STRUCT NAME LBRACE fields RBRACE'
     typename = p[2]
     fields = p[4]
-    type_table[typename] = list(fields)
+    type_table[typename] = _normalize_fields(fields)
     p[0] = f"; STRUCT {typename} with fields {fields}"
 
 
@@ -612,7 +697,7 @@ def p_stmt_record_decl(p):
     'stmt : RECORD NAME LBRACE fields RBRACE'
     typename = p[2]
     fields = p[4]
-    type_table[typename] = list(fields)
+    type_table[typename] = _normalize_fields(fields)
     p[0] = f"; RECORD {typename} with fields {fields}"
 
 
@@ -620,7 +705,7 @@ def p_stmt_class_decl(p):
     'stmt : CLASS NAME LBRACE fields RBRACE'
     typename = p[2]
     fields = p[4]
-    type_table[typename] = list(fields)
+    type_table[typename] = _normalize_fields(fields)
     # Warning: class is treated as struct (no methods/inheritance)
     p[0] = f"; CLASS {typename} with fields {fields} (treated as struct)"
 
@@ -639,10 +724,60 @@ def p_fields_with_visibility(p):
     '''fields : PRIVATE COLON NAME
               | PUBLIC COLON NAME
               | PROTECTED COLON NAME'''
-    # Visibility is parsed but not enforced (educational purpose)
-    visibility = p[1]  # 'private', 'public', or 'protected'
+    visibility = p[1]
     field_name = p[3]
-    p[0] = [f"{visibility}_{field_name}"]  # Mark field with visibility prefix
+    p[0] = [f"{visibility}_{field_name}"]
+
+
+# ============ MODULE SYSTEM ============
+
+def p_stmt_module_decl(p):
+    'stmt : MODULE NAME'
+    global current_module
+    module_name = p[2]
+    current_module = module_name
+    if module_name not in module_symbols:
+        module_symbols[module_name] = {}
+    p[0] = f"; MODULE {module_name}"
+
+
+def p_stmt_export(p):
+    'stmt : EXPORT NAME'
+    if current_module is None:
+        raise SyntaxError("EXPORT statement outside of module")
+    symbol_name = p[2]
+    # Mark symbol as exported (details stored when symbol is defined)
+    if current_module not in module_symbols:
+        module_symbols[current_module] = {}
+    module_symbols[current_module][symbol_name] = {'exported': True, 'type': 'unknown'}
+    p[0] = f"; EXPORT {symbol_name} from module {current_module}"
+
+
+def p_stmt_import_single(p):
+    'stmt : IMPORT NAME FROM NAME'
+    symbol_name = p[2]
+    module_name = p[4]
+    # Register import
+    if module_name not in imported_modules:
+        imported_modules[module_name] = []
+    imported_modules[module_name].append(symbol_name)
+    # Validate that symbol exists in target module
+    if module_name in module_symbols:
+        if symbol_name not in module_symbols[module_name]:
+            raise SyntaxError(f"Symbol '{symbol_name}' not found in module '{module_name}'")
+    else:
+        # Module not yet parsed, defer validation
+        pass
+    p[0] = f"; IMPORT {symbol_name} FROM {module_name}"
+
+
+def p_stmt_import_all(p):
+    'stmt : IMPORT NAME'
+    module_name = p[2]
+    # Import all exported symbols from module
+    if module_name not in imported_modules:
+        imported_modules[module_name] = ['*']  # '*' means all exports
+    p[0] = f"; IMPORT * FROM {module_name}"
 
 
 def p_fields_visibility_multiple(p):
@@ -668,6 +803,48 @@ def p_stmt_var_typed(p):
     p[0] = f"; VAR {varname} : {typename} -> {size} words"
 
 
+def p_stmt_var_typed_init(p):
+    'stmt : VAR NAME COLON NAME EQUALS LBRACE init_list RBRACE'
+    varname = p[2]
+    typename = p[4]
+    init_values = p[7]  # Lista de expresiones
+    
+    if typename not in type_table:
+        raise SyntaxError(f"Unknown type '{typename}' for variable {varname}")
+    
+    fields = type_table[typename]
+    if len(init_values) != len(fields):
+        raise SyntaxError(f"Type '{typename}' has {len(fields)} fields but {len(init_values)} initializers provided")
+    
+    # Crear la variable en .data section (inicialmente en 0)
+    size = len(fields)
+    data_vals = ' '.join(['0'] * size)
+    _data_section.append(f"{varname}:")
+    _data_section.append(f".data {data_vals}")
+    
+    # Generar código para inicializar cada campo
+    if ctx is None:
+        raise RuntimeError("Parser context not initialized")
+    
+    lines = [f"; VAR {varname} : {typename} -> {size} words with initializers"]
+    for i, init_expr in enumerate(init_values):
+        temp = ctx.new_temp()
+        lines.extend(generate_expr_asm(init_expr, temp))
+        lines.append(f"GUARD R{temp}, M[{varname}+{i}]")
+    
+    p[0] = '\n'.join(lines)
+
+
+def p_init_list_single(p):
+    'init_list : expr'
+    p[0] = [p[1]]
+
+
+def p_init_list_multiple(p):
+    'init_list : expr COMMA init_list'
+    p[0] = [p[1]] + p[3]
+
+
 def p_stmt_field_assign(p):
     'stmt : NAME DOT NAME EQUALS expr'
     var = p[1]
@@ -675,16 +852,24 @@ def p_stmt_field_assign(p):
     ast = p[5]
     if ctx is None:
         raise RuntimeError("Parser context not initialized")
-    # Find field offset in declared types
+    
+    # Find type and validate access
+    found = False
     for tname, fields in type_table.items():
-        if field in fields:
-            offset = fields.index(field)
+        field_info = _get_field_info(tname, field)
+        if field_info:
+            # Found the field, check access (external context)
+            _check_field_access(tname, field, "external")
+            offset = field_info['offset']
             temp = ctx.new_temp()
             lines = generate_expr_asm(ast, temp)
             lines.append(f"GUARD R{temp}, M[{var}+{offset}]")
             p[0] = '\n'.join(lines)
-            return
-    raise SyntaxError(f"Unknown field '{field}' for variable {var}")
+            found = True
+            break
+    
+    if not found:
+        raise SyntaxError(f"Unknown field '{field}' for variable {var}")
 
 
 def p_stmt_field_assign_assignop(p):
@@ -694,15 +879,22 @@ def p_stmt_field_assign_assignop(p):
     ast = p[5]
     if ctx is None:
         raise RuntimeError("Parser context not initialized")
+    
+    found = False
     for tname, fields in type_table.items():
-        if field in fields:
-            offset = fields.index(field)
+        field_info = _get_field_info(tname, field)
+        if field_info:
+            _check_field_access(tname, field, "external")
+            offset = field_info['offset']
             temp = ctx.new_temp()
             lines = generate_expr_asm(ast, temp)
             lines.append(f"GUARD R{temp}, M[{var}+{offset}]")
             p[0] = '\n'.join(lines)
-            return
-    raise SyntaxError(f"Unknown field '{field}' for variable {var}")
+            found = True
+            break
+    
+    if not found:
+        raise SyntaxError(f"Unknown field '{field}' for variable {var}")
 
 
 def p_expr_field_access(p):
@@ -711,8 +903,10 @@ def p_expr_field_access(p):
     field = p[3]
     # Find field in known types
     for tname, fields in type_table.items():
-        if field in fields:
-            offset = fields.index(field)
+        field_info = _get_field_info(tname, field)
+        if field_info:
+            _check_field_access(tname, field, "external")
+            offset = field_info['offset']
             p[0] = ('memref_label', var, offset)
             return
     raise SyntaxError(f"Unknown field '{field}' for variable {var}")

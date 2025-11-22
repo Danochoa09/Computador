@@ -1,0 +1,15 @@
+// Ejemplo de encapsulación con private/public
+// Característica 2: Validación de acceso a campos privados
+
+// Clase con campos privados y públicos
+class BankAccount {public: accountNumber, public: balance, private: pin}
+
+var account : BankAccount = {12345, 1000, 9876}
+
+// Acceso permitido: campos públicos
+num = account.accountNumber
+bal = account.balance
+
+// ESTE ACCESO DEBE FALLAR EN COMPILACIÓN
+// Intentar acceder a campo privado desde fuera
+secret = account.pin

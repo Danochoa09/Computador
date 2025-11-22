@@ -1,0 +1,69 @@
+# =====================================================
+# DEMO COMPLETA DEL PREPROCESADOR
+# Muestra el uso de #define e #include con funciones
+# matemáticas y de matrices
+# =====================================================
+
+# Definir constantes globales
+#define OUTPUT_ADDR 131072
+#define NUM_TESTS 3
+
+print("=== DEMOSTRACION DEL PREPROCESADOR SPL ===")
+print("Ejemplo de uso de #define e #include")
+print("")
+
+# -----------------------------------------------------
+# TEST 1: Cálculo de Factorial
+# -----------------------------------------------------
+
+print("TEST 1: Factorial de 5")
+
+var fact_n
+var fact_result
+
+fact_n = 5
+
+#include "basicmath.spl"
+
+print("Factorial de 5 = ", fact_result)
+M[OUTPUT_ADDR] = fact_result
+
+# -----------------------------------------------------
+# TEST 2: Máximo Común Divisor
+# -----------------------------------------------------
+
+print("TEST 2: MCD de 48 y 18")
+
+var mcd_a
+var mcd_b
+var mcd_result
+
+mcd_a = 48
+mcd_b = 18
+
+# La función ya está incluida desde basicmath.spl
+
+print("MCD(48, 18) = ", mcd_result)
+M[OUTPUT_ADDR + 1] = mcd_result
+
+# -----------------------------------------------------
+# TEST 3: Potencia
+# -----------------------------------------------------
+
+print("TEST 3: 2 elevado a 8")
+
+var pow_base
+var pow_exp
+var pow_counter
+var pow_result
+
+pow_base = 2
+pow_exp = 8
+pow_counter = 0
+
+# La función ya está incluida desde basicmath.spl
+
+print("2^8 = ", pow_result)
+M[OUTPUT_ADDR + 2] = pow_result
+
+print("=== FIN DE LA DEMOSTRACION ===")
