@@ -383,7 +383,7 @@ class SimuladorComputador(tk.Tk):
         btn_frame.pack(fill="x", pady=5)
 
         self.btn_cargar_archivo = ttk.Button(
-            btn_frame, text="Cargar desde Archivo", command=self._cargar_archivo)
+            btn_frame, text="Cargar", command=self._cargar_archivo)
         self.btn_cargar_archivo.pack(side="left", padx=5)
 
         ttk.Label(btn_frame, text="Dirección de carga (hex):").pack(side="left")
@@ -400,10 +400,18 @@ class SimuladorComputador(tk.Tk):
         self.btn_convertir.pack(side="left", padx=5)
 
         # Open separate compilation window
-        ttk.Button(btn_frame, text="Abrir Ventana de Compilación", command=self._abrir_ventana_compilacion).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Ventana de Compilación", command=self._abrir_ventana_compilacion).pack(side="left", padx=5)
+        
+        # Open separate execution window (interpreter mode)
+        ttk.Button(btn_frame, text="Yacc", command=self._abrir_ventana_ejecucion).pack(side="left", padx=5)
 
     def _abrir_ventana_compilacion(self):
         win = VentanaCompilacion(self)
+        win.transient(self)
+        win.grab_set()
+    
+    def _abrir_ventana_ejecucion(self):
+        win = VentanaEjecucion(self)
         win.transient(self)
         win.grab_set()
 
@@ -737,6 +745,133 @@ class SimuladorComputador(tk.Tk):
 if __name__ == "__main__":
     app = SimuladorComputador()
     app.mainloop()
+
+# --- Nueva ventana de ejecución interpretada (YACC) ---
+class VentanaEjecucion(tk.Toplevel):
+    def __init__(self, master):
+        super().__init__(master)
+        self.title("Ejecución Directa SPL (Intérprete YACC)")
+        self.geometry("1000x700")
+        self._build_ui()
+
+    def _build_ui(self):
+        container = tk.Frame(self)
+        container.pack(fill="both", expand=True, padx=8, pady=8)
+
+        # Column 0: Código SPL
+        col0 = ttk.LabelFrame(container, text="CÓDIGO SPL", padding=8)
+        col0.grid(row=0, column=0, padx=4, pady=6, sticky="nsew")
+        
+        top_row0 = tk.Frame(col0)
+        top_row0.pack(fill="x")
+        ttk.Button(top_row0, text="Cargar", command=self._cargar_archivo).pack(side="left", padx=2)
+        ttk.Button(top_row0, text="Ejecutar →", command=self._ejecutar).pack(side="left", padx=2)
+        ttk.Button(top_row0, text="Limpiar", command=self._limpiar).pack(side="left", padx=2)
+        
+        self.txt_codigo = scrolledtext.ScrolledText(col0, width=50, height=30, wrap=tk.NONE)
+        self.txt_codigo.pack(fill="both", expand=True)
+        
+        # Column 1: Resultados
+        col1 = ttk.LabelFrame(container, text="RESULTADOS", padding=8)
+        col1.grid(row=0, column=1, padx=4, pady=6, sticky="nsew")
+        
+        # Variables section
+        var_frame = ttk.LabelFrame(col1, text="Variables", padding=4)
+        var_frame.pack(fill="both", expand=True, pady=(0, 5))
+        self.txt_variables = scrolledtext.ScrolledText(var_frame, width=45, height=12, wrap=tk.NONE)
+        self.txt_variables.pack(fill="both", expand=True)
+        
+        # Objects (TDA) section
+        obj_frame = ttk.LabelFrame(col1, text="Objetos (TDA)", padding=4)
+        obj_frame.pack(fill="both", expand=True, pady=(0, 5))
+        self.txt_objetos = scrolledtext.ScrolledText(obj_frame, width=45, height=8, wrap=tk.NONE)
+        self.txt_objetos.pack(fill="both", expand=True)
+        
+        # Output section
+        out_frame = ttk.LabelFrame(col1, text="Salida (print)", padding=4)
+        out_frame.pack(fill="both", expand=True)
+        self.txt_salida = scrolledtext.ScrolledText(out_frame, width=45, height=8, wrap=tk.NONE)
+        self.txt_salida.pack(fill="both", expand=True)
+        
+        # Configure grid weights
+        container.grid_columnconfigure(0, weight=1)
+        container.grid_columnconfigure(1, weight=1)
+        container.grid_rowconfigure(0, weight=1)
+
+    def _cargar_archivo(self):
+        path = filedialog.askopenfilename(
+            title="Seleccionar código SPL",
+            filetypes=(("SPL files", "*.spl"), ("Todos", "*.*")),
+        )
+        if not path:
+            return
+        try:
+            txt = Path(path).read_text(encoding="utf-8")
+            self.txt_codigo.delete("1.0", tk.END)
+            self.txt_codigo.insert(tk.END, txt)
+        except Exception as e:
+            tk.messagebox.showerror("Error", f"No se pudo cargar: {e}")
+    
+    def _ejecutar(self):
+        """Ejecutar código SPL usando el intérprete YACC"""
+        src = self.txt_codigo.get("1.0", tk.END).strip()
+        if not src:
+            tk.messagebox.showwarning("Atención", "No hay código para ejecutar.")
+            return
+        
+        try:
+            # Importar y usar el intérprete
+            from model.compilador.parser_spl import interpret_high_level
+            
+            # Ejecutar en modo intérprete
+            ctx = interpret_high_level(src)
+            
+            # Mostrar resultados
+            self._mostrar_resultados(ctx)
+            
+        except Exception as e:
+            tk.messagebox.showerror("Error al ejecutar", f"{e}")
+    
+    def _mostrar_resultados(self, ctx):
+        """Mostrar los resultados de la ejecución"""
+        # Limpiar áreas de resultado
+        self.txt_variables.delete("1.0", tk.END)
+        self.txt_objetos.delete("1.0", tk.END)
+        self.txt_salida.delete("1.0", tk.END)
+        
+        # Mostrar variables
+        if ctx.variables:
+            self.txt_variables.insert(tk.END, "Variable\t\tValor\n")
+            self.txt_variables.insert(tk.END, "="*40 + "\n")
+            for name, value in ctx.variables.items():
+                self.txt_variables.insert(tk.END, f"{name}\t\t{value}\n")
+        else:
+            self.txt_variables.insert(tk.END, "(Sin variables)")
+        
+        # Mostrar objetos TDA
+        if ctx.objects:
+            self.txt_objetos.insert(tk.END, "Objeto\t\tCampos\n")
+            self.txt_objetos.insert(tk.END, "="*40 + "\n")
+            for name, fields in ctx.objects.items():
+                self.txt_objetos.insert(tk.END, f"{name}:\n")
+                for field_name, field_value in fields.items():
+                    self.txt_objetos.insert(tk.END, f"  .{field_name} = {field_value}\n")
+        else:
+            self.txt_objetos.insert(tk.END, "(Sin objetos)")
+        
+        # Mostrar salida de print
+        if ctx.output:
+            for line in ctx.output:
+                self.txt_salida.insert(tk.END, line + "\n")
+        else:
+            self.txt_salida.insert(tk.END, "(Sin salida)")
+    
+    def _limpiar(self):
+        """Limpiar todas las áreas de texto"""
+        self.txt_variables.delete("1.0", tk.END)
+        self.txt_objetos.delete("1.0", tk.END)
+        self.txt_salida.delete("1.0", tk.END)
+
 
 # --- Nueva ventana de compilación/ensamblado ---
 class VentanaCompilacion(tk.Toplevel):

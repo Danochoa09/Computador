@@ -14,6 +14,31 @@ from .spl_to_asm import compile_euclides
 from model.ensamblador.assembler_from_as import MNEMONIC_TABLE
 import re
 
+# Flag global para modo de operación
+INTERPRETER_MODE = False  # False = compilar, True = interpretar
+
+
+def _execute_if_interpreter(stmt_tuple):
+    """
+    Si estamos en modo intérprete, ejecuta la acción semántica.
+    Si estamos en modo compilador, no hace nada.
+    """
+    if INTERPRETER_MODE:
+        from .interpreter_yacc import execute_statement
+        execute_statement(stmt_tuple)
+
+
+def _evaluate_if_interpreter(expr_ast):
+    """
+    Si estamos en modo intérprete, evalúa la expresión y retorna su valor.
+    Si estamos en modo compilador, retorna None.
+    """
+    if INTERPRETER_MODE:
+        from .interpreter_yacc import get_interpreter
+        ctx = get_interpreter()
+        return ctx.evaluate_expression(expr_ast)
+    return None
+
 
 class ParserContext:
     def __init__(self, reg_start: int = 4, reg_end: int = 31):  # CPU has R0-R31, R4-R31 are usable
@@ -364,6 +389,11 @@ def p_stmt_assignment_number(p):
     val = p[3]
     if ctx is None:
         raise RuntimeError("Parser context not initialized")
+    
+    # Acción semántica YACC: ejecutar en modo intérprete
+    _execute_if_interpreter(('assign', var, ('number', val)))
+    
+    # Modo compilador: generar ensamblador
     reg = ctx.reg_for(var)
     p[0] = f"ICARGA R{reg} {val}"
 
@@ -374,6 +404,11 @@ def p_stmt_assignment_name(p):
     src = p[3]
     if ctx is None:
         raise RuntimeError("Parser context not initialized")
+    
+    # Acción semántica YACC: ejecutar en modo intérprete
+    _execute_if_interpreter(('assign', dst, ('name', src)))
+    
+    # Modo compilador: generar ensamblador
     reg_dst = ctx.reg_for(dst)
     reg_src = ctx.reg_for(src)
     p[0] = f"COPIA R{reg_dst}, R{reg_src}"
@@ -386,6 +421,11 @@ def p_stmt_assignment_expr(p):
     ast = p[3]
     if ctx is None:
         raise RuntimeError("Parser context not initialized")
+    
+    # Acción semántica YACC: ejecutar en modo intérprete
+    _execute_if_interpreter(('assign', dst, ast))
+    
+    # Modo compilador: generar ensamblador
     reg_dst = ctx.reg_for(dst)
     lines = generate_expr_asm(ast, reg_dst)
     p[0] = '\n'.join(lines)
@@ -681,7 +721,15 @@ def p_stmt_type_decl(p):
     typename = p[2]
     fields = p[4]
     # Store fields with visibility info (if any)
-    type_table[typename] = _normalize_fields(fields)
+    normalized = _normalize_fields(fields)
+    type_table[typename] = normalized
+    
+    # Acción semántica YACC: registrar tipo en intérprete
+    if INTERPRETER_MODE:
+        from .interpreter_yacc import get_interpreter
+        interp = get_interpreter()
+        interp.declare_type(typename, normalized)
+    
     p[0] = f"; TYPE {typename} with fields {fields}"
 
 
@@ -689,7 +737,15 @@ def p_stmt_struct_decl(p):
     'stmt : STRUCT NAME LBRACE fields RBRACE'
     typename = p[2]
     fields = p[4]
-    type_table[typename] = _normalize_fields(fields)
+    normalized = _normalize_fields(fields)
+    type_table[typename] = normalized
+    
+    # Acción semántica YACC
+    if INTERPRETER_MODE:
+        from .interpreter_yacc import get_interpreter
+        interp = get_interpreter()
+        interp.declare_type(typename, normalized)
+    
     p[0] = f"; STRUCT {typename} with fields {fields}"
 
 
@@ -705,7 +761,15 @@ def p_stmt_class_decl(p):
     'stmt : CLASS NAME LBRACE fields RBRACE'
     typename = p[2]
     fields = p[4]
-    type_table[typename] = _normalize_fields(fields)
+    normalized = _normalize_fields(fields)
+    type_table[typename] = normalized
+    
+    # Acción semántica YACC
+    if INTERPRETER_MODE:
+        from .interpreter_yacc import get_interpreter
+        interp = get_interpreter()
+        interp.declare_type(typename, normalized)
+    
     # Warning: class is treated as struct (no methods/inheritance)
     p[0] = f"; CLASS {typename} with fields {fields} (treated as struct)"
 
@@ -816,6 +880,14 @@ def p_stmt_var_typed_init(p):
     if len(init_values) != len(fields):
         raise SyntaxError(f"Type '{typename}' has {len(fields)} fields but {len(init_values)} initializers provided")
     
+    # Acción semántica YACC: crear objeto en intérprete
+    if INTERPRETER_MODE:
+        from .interpreter_yacc import get_interpreter
+        interp = get_interpreter()
+        # Evaluar init_values
+        evaluated_values = [interp.evaluate_expression(expr) for expr in init_values]
+        interp.create_object(varname, typename, evaluated_values)
+    
     # Crear la variable en .data section (inicialmente en 0)
     size = len(fields)
     data_vals = ' '.join(['0'] * size)
@@ -852,6 +924,13 @@ def p_stmt_field_assign(p):
     ast = p[5]
     if ctx is None:
         raise RuntimeError("Parser context not initialized")
+    
+    # Acción semántica YACC: asignar campo en intérprete
+    if INTERPRETER_MODE:
+        from .interpreter_yacc import get_interpreter
+        interp = get_interpreter()
+        value = interp.evaluate_expression(ast)
+        interp.set_field(var, field, value)
     
     # Find type and validate access
     found = False
@@ -901,6 +980,13 @@ def p_expr_field_access(p):
     'expr : NAME DOT NAME'
     var = p[1]
     field = p[3]
+    
+    # Acción semántica YACC: En modo intérprete, crear AST especial para field_access
+    # que será evaluado por evaluate_expression
+    if INTERPRETER_MODE:
+        p[0] = ('field_access', var, field)
+        return
+    
     # Find field in known types
     for tname, fields in type_table.items():
         field_info = _get_field_info(tname, field)
@@ -983,6 +1069,24 @@ def p_stmt_print(p):
     items = p[3]
     if ctx is None:
         raise RuntimeError("Parser context not initialized")
+    
+    # Acción semántica YACC: ejecutar en modo intérprete
+    if INTERPRETER_MODE:
+        from .interpreter_yacc import get_interpreter
+        interp = get_interpreter()
+        output_parts = []
+        for it in items:
+            kind = it[0]
+            if kind == 'string':
+                output_parts.append(it[1])
+            elif kind == 'expr':
+                value = interp.evaluate_expression(it[1])
+                output_parts.append(str(value))
+        output_line = ' '.join(output_parts)
+        interp.print_output(output_line)
+        print(output_line)
+    
+    # Modo compilador: generar ensamblador
     es_addr = __import__('constants').E_S_RANGE[0]
     lines = []
 
@@ -1573,10 +1677,74 @@ def compile_high_level(text: str) -> str:
         ctx = None
 
 
+def interpret_high_level(text: str, input_data: list = None):
+    """
+    Interpreta código SPL directamente ejecutando acciones semánticas (modo YACC).
+    No genera ensamblador, ejecuta el código durante el parsing.
+    
+    Args:
+        text: Código fuente SPL
+        input_data: Lista de valores para input() statements
+        
+    Returns:
+        InterpreterContext con el estado final de ejecución
+    """
+    global INTERPRETER_MODE, ctx
+    from .interpreter_yacc import init_interpreter, get_interpreter
+    
+    # Activar modo intérprete
+    INTERPRETER_MODE = True
+    
+    try:
+        # Inicializar intérprete
+        interp_ctx = init_interpreter()
+        if input_data:
+            interp_ctx.input_buffer = input_data
+        
+        # Parsear y ejecutar
+        pre = _preprocess_indentation(text)
+        type_table.clear()
+        _data_section.clear()
+        array_dims.clear()
+        array_col_var.clear()
+        module_symbols.clear()
+        imported_modules.clear()
+        
+        lexer = lex_spl.build_lexer()
+        ctx = ParserContext()
+        
+        import sys
+        module = sys.modules.get(__name__)
+        if module is None:
+            import inspect
+            module = inspect.getmodule(inspect.currentframe())
+        
+        parser = yacc.yacc(module=module)
+        result = parser.parse(pre, lexer=lexer)
+        
+        # En modo intérprete, result contendrá los ASTs ejecutados
+        # El estado final está en interp_ctx
+        return interp_ctx
+        
+    finally:
+        INTERPRETER_MODE = False
+        ctx = None
+
+
 if __name__ == '__main__':
     import sys
     data = sys.stdin.read()
-    out = compile_high_level(data)
-    if out is not None:
-        sys.stdout.write(out)
-    sys.stdout.write(out)
+    
+    # Detectar modo: --interpret para interpretar, por defecto compila
+    if '--interpret' in sys.argv:
+        interp_ctx = interpret_high_level(data)
+        print("\n=== Salida del programa ===")
+        for line in interp_ctx.output:
+            print(line)
+        print("\n=== Variables finales ===")
+        for var, val in interp_ctx.variables.items():
+            print(f"{var} = {val}")
+    else:
+        out = compile_high_level(data)
+        if out is not None:
+            sys.stdout.write(out)
