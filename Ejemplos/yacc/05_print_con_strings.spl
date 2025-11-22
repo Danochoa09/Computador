@@ -1,0 +1,2 @@
+resultado = 42
+print("El resultado es:", resultado)

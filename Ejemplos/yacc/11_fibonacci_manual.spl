@@ -1,0 +1,41 @@
+a = 0
+b = 1
+print(a, b)
+
+c = a + b
+print(c)
+a = b
+b = c
+
+c = a + b
+print(c)
+a = b
+b = c
+
+c = a + b
+print(c)
+a = b
+b = c
+
+c = a + b
+print(c)
+a = b
+b = c
+
+c = a + b
+print(c)
+a = b
+b = c
+
+c = a + b
+print(c)
+a = b
+b = c
+
+c = a + b
+print(c)
+a = b
+b = c
+
+c = a + b
+print(c)

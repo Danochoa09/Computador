@@ -1,0 +1,4 @@
+type Point {x, y}
+
+var p1 : Point = {10, 20}
+var p2 : Point = {30, 40}

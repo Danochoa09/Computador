@@ -1,0 +1,11 @@
+nota1 = 85
+nota2 = 90
+nota3 = 78
+
+s = nota1 + nota2
+s = s + nota3
+
+print("Nota1:", nota1)
+print("Nota2:", nota2)
+print("Nota3:", nota3)
+print("Total:", s)

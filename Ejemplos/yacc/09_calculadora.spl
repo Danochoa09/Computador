@@ -1,0 +1,10 @@
+num1 = 100
+num2 = 50
+
+s = num1 + num2
+r = num1 - num2
+m = num1 * num2
+
+print("Suma:", s)
+print("Resta:", r)
+print("Multiplicacion:", m)

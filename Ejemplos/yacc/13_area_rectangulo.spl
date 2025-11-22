@@ -1,0 +1,7 @@
+base = 10
+altura = 5
+area = base * altura
+
+print("Base:", base)
+print("Altura:", altura)
+print("Area:", area)

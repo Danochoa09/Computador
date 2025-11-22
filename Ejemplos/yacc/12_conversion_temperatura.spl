@@ -1,0 +1,6 @@
+celsius = 25
+temp = celsius * 2
+fahrenheit = temp + 32
+
+print("Celsius:", celsius)
+print("Aprox Fahrenheit:", fahrenheit)

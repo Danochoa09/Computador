@@ -1,0 +1,4 @@
+type Persona {edad, altura, peso}
+
+var juan : Persona = {25, 175, 70}
+var maria : Persona = {30, 165, 60}
