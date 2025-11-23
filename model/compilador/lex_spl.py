@@ -133,9 +133,12 @@ def t_LABEL(t):
     return t
 
 def t_NUMBER(t):
-    r"0x[0-9A-Fa-f]+|0b[01]+|[0-9]+"
+    r"[0-9]+\.[0-9]+([eE][+-]?[0-9]+)?|[0-9]+([eE][+-]?[0-9]+)|0x[0-9A-Fa-f]+|0b[01]+|[0-9]+"
     s = t.value
-    if s.startswith(('0x', '0X')):
+    # Detectar si es float (tiene punto decimal o notación científica)
+    if '.' in s or 'e' in s.lower():
+        t.value = float(s)
+    elif s.startswith(('0x', '0X')):
         t.value = int(s, 16)
     elif s.startswith(('0b', '0B')):
         t.value = int(s, 2)

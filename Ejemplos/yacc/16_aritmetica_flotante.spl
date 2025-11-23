@@ -1,0 +1,26 @@
+# Ejemplo 16: Aritmética de Punto Flotante
+# Este ejemplo demuestra el soporte para números decimales y notación científica
+
+# Operaciones básicas con floats
+pi = 3.14159
+radio = 5.0
+area = pi * radio * radio
+print(area)
+
+# Mezcla de enteros y floats
+precio = 100
+descuento = 0.15
+precio_con_descuento = precio * descuento
+precio_final = precio - precio_con_descuento
+print(precio_final)
+
+# Notación científica
+velocidad_luz = 3e8
+distancia_km = 1.5e6
+tiempo = distancia_km * velocidad_luz
+print(tiempo)
+
+# Operaciones con decimales pequeños
+temperatura_celsius = 25.5
+temperatura_kelvin = temperatura_celsius + 273.15
+print(temperatura_kelvin)

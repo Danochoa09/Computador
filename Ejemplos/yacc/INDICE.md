@@ -1,6 +1,6 @@
 # Índice de Ejemplos YACC - Intérprete SPL
 
-## ✅ Estado: 15/15 ejemplos funcionando
+## ✅ Estado: 16/16 ejemplos funcionando
 
 ---
 
@@ -22,6 +22,12 @@
 - **Descripción**: Verificar precedencia de operadores
 - **Conceptos**: Orden de evaluación (* antes que +)
 - **Resultado**: `resultado1 = 25` (10 + 5 * 3 = 10 + 15)
+
+#### **16_aritmetica_flotante.spl** ✨ NUEVO
+- **Descripción**: Soporte completo para números decimales (float)
+- **Conceptos**: Literales float (3.14), notación científica (1.5e2), mezcla int/float
+- **Operaciones**: Cálculo de área (π), descuentos, conversiones de temperatura
+- **Salida**: `78.53975`, `85.0`, `450000000000000.0`, `298.65`
 
 ---
 

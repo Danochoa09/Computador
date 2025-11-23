@@ -90,7 +90,12 @@ class InterpreterContext:
         for i, field_info in enumerate(fields):
             field_name = field_info['name']
             if init_values and i < len(init_values):
-                obj[field_name] = init_values[i]
+                val = init_values[i]
+                # Preservar tipo (int o float)
+                if isinstance(val, (int, float)):
+                    obj[field_name] = val
+                else:
+                    obj[field_name] = val
             else:
                 obj[field_name] = 0  # Valor por defecto
                 
@@ -147,6 +152,9 @@ class InterpreterContext:
                 return self.variables[expr_ast]
             # O intentar convertir a número
             try:
+                # Detectar si es float
+                if '.' in expr_ast or 'e' in expr_ast.lower():
+                    return float(expr_ast)
                 return int(expr_ast)
             except ValueError:
                 # Es un string literal
@@ -162,7 +170,15 @@ class InterpreterContext:
             # Número ('num', value)
             if node_type == 'num' or node_type == 'number':
                 val = expr_ast[1]
-                return int(val) if isinstance(val, (int, float, str)) else 0
+                # Mantener el tipo original (int o float)
+                if isinstance(val, (int, float)):
+                    return val
+                if isinstance(val, str):
+                    # Intentar convertir, detectar si es float
+                    if '.' in val or 'e' in val.lower():
+                        return float(val)
+                    return int(val)
+                return 0
                 
             # Variable ('name', varname)
             if node_type == 'name':
@@ -343,7 +359,10 @@ def execute_statement(stmt_ast):
             varname = stmt_ast[1]
             value = ctx.read_input()
             try:
-                value = int(value)
+                if '.' in value or 'e' in value.lower():
+                    value = float(value)
+                else:
+                    value = int(value)
             except ValueError:
                 pass
             ctx.set_variable(varname, value)
