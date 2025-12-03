@@ -1410,10 +1410,13 @@ def p_stmt_proc_def(p):
     name = p[2]
     body = p[8]
     out = []
+    skip_label = ctx.new_label('skip_proc')
+    out.append(f"SALTA {skip_label}")
     out.append(f"{name}:")
     out.extend(body)
     if not out or not out[-1].strip().upper().startswith('VUELVE'):
         out.append('VUELVE')
+    out.append(f"{skip_label}:")
     p[0] = '\n'.join(out)
 
 

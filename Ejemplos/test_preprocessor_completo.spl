@@ -8,6 +8,8 @@
 #define OUTPUT_BASE 131072
 #define INITIAL_VALUE 5
 
+#include "basicmath.spl"
+
 # Variables para factorial
 var fact_n
 var fact_result
@@ -31,10 +33,9 @@ print("=== DEMO DEL PREPROCESADOR ===")
 print("1. Calculando factorial de ", INITIAL_VALUE)
 fact_n = INITIAL_VALUE
 
-#include "basicmath.spl"
 
-print("   Resultado: ", fact_result)
 M[OUTPUT_BASE] = fact_result
+print("   Resultado: ", fact_result)
 
 # ---------------------------------------
 # PRUEBA 2: Potencia
@@ -44,8 +45,8 @@ pow_base = 2
 pow_exp = 8
 # La función ya está incluida en basicmath.spl
 
-print("   Resultado: ", pow_result)
 M[131073] = pow_result
+print("   Resultado: ", pow_result)
 
 # ---------------------------------------
 # PRUEBA 3: MCD de dos números
@@ -55,7 +56,7 @@ mcd_a = 100
 mcd_b = 35
 # La función ya está incluida en basicmath.spl
 
-print("   Resultado: ", mcd_result)
-M[131074] = mcd_result     
+M[131074] = mcd_result  
+print("   Resultado: ", mcd_result)   
 
 print("=== FIN DE LA DEMO ===")

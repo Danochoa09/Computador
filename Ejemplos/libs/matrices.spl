@@ -23,25 +23,27 @@
 # Nota: cols_A debe ser igual a filas_B
 # -----------------------------------------------------
 
-mat_i = 0
-
-while mat_i < filas_A:
-    mat_j = 0
+proc matriz_multiplicar():
+    mat_i = 0
     
-    while mat_j < cols_B:
-        mat_sum = 0
-        mat_k = 0
+    while mat_i < filas_A:
+        mat_j = 0
         
-        while mat_k < cols_A:
-            mat_sum = mat_sum + mat_A[mat_i][mat_k] * mat_B[mat_k][mat_j]
-            mat_k = mat_k + 1
+        while mat_j < cols_B:
+            mat_sum = 0
+            mat_k = 0
+            
+            while mat_k < cols_A:
+                mat_sum = mat_sum + mat_A[mat_i][mat_k] * mat_B[mat_k][mat_j]
+                mat_k = mat_k + 1
+            end
+            
+            mat_C[mat_i][mat_j] = mat_sum
+            mat_j = mat_j + 1
         end
         
-        mat_C[mat_i][mat_j] = mat_sum
-        mat_j = mat_j + 1
+        mat_i = mat_i + 1
     end
-    
-    mat_i = mat_i + 1
 end
 
 
@@ -58,17 +60,19 @@ end
 #   - mat_C[filas][cols]: matriz resultado
 # -----------------------------------------------------
 
-mat_i = 0
-
-while mat_i < mat_filas:
-    mat_j = 0
+proc matriz_sumar():
+    mat_i = 0
     
-    while mat_j < mat_cols:
-        mat_C[mat_i][mat_j] = mat_A[mat_i][mat_j] + mat_B[mat_i][mat_j]
-        mat_j = mat_j + 1
+    while mat_i < mat_filas:
+        mat_j = 0
+        
+        while mat_j < mat_cols:
+            mat_C[mat_i][mat_j] = mat_A[mat_i][mat_j] + mat_B[mat_i][mat_j]
+            mat_j = mat_j + 1
+        end
+        
+        mat_i = mat_i + 1
     end
-    
-    mat_i = mat_i + 1
 end
 
 
@@ -84,17 +88,19 @@ end
 #   - mat_C[cols][filas]: matriz transpuesta
 # -----------------------------------------------------
 
-mat_i = 0
-
-while mat_i < mat_filas:
-    mat_j = 0
+proc matriz_transponer():
+    mat_i = 0
     
-    while mat_j < mat_cols:
-        mat_C[mat_j][mat_i] = mat_A[mat_i][mat_j]
-        mat_j = mat_j + 1
+    while mat_i < mat_filas:
+        mat_j = 0
+        
+        while mat_j < mat_cols:
+            mat_C[mat_j][mat_i] = mat_A[mat_i][mat_j]
+            mat_j = mat_j + 1
+        end
+        
+        mat_i = mat_i + 1
     end
-    
-    mat_i = mat_i + 1
 end
 
 
@@ -109,17 +115,19 @@ end
 #   - mat_C[filas][cols]: matriz con todos ceros
 # -----------------------------------------------------
 
-mat_i = 0
-
-while mat_i < mat_filas:
-    mat_j = 0
+proc matriz_inicializar_cero():
+    mat_i = 0
     
-    while mat_j < mat_cols:
-        mat_C[mat_i][mat_j] = 0
-        mat_j = mat_j + 1
+    while mat_i < mat_filas:
+        mat_j = 0
+        
+        while mat_j < mat_cols:
+            mat_C[mat_i][mat_j] = 0
+            mat_j = mat_j + 1
+        end
+        
+        mat_i = mat_i + 1
     end
-    
-    mat_i = mat_i + 1
 end
 
 
