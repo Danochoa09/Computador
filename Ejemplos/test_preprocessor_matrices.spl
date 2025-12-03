@@ -50,6 +50,7 @@ print(mat_B[1][0], " ", mat_B[1][1])
 
 # Incluir librería de matrices para multiplicar
 #include "matrices.spl"
+call matriz_multiplicar()
 
 # Mostrar resultado C = A * B
 print("Matriz C (resultado):")
